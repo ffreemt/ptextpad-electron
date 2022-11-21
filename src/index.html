@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>AG Grid + Electron</title>
+  <link rel="stylesheet" href="../node_modules/ag-grid-community/dist/styles/ag-grid.css"">
+    <link rel=" stylesheet" href="../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+  <script>
+    document.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      for (const f of e.dataTransfer.files) {
+        console.log('File(s) you dragged here: ', f.path)
+      }
+    });
+    document.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  </script>
+
+  <div class="container">
+    <!-- <h1>Electron TO-DO.</h1> -->
+    <div class="btn-container">
+      <button id="save-btn" class="btn">Save</button>
+      <button id="restore-btn" class="btn">Restore</button>
+      <button id="add-btn" class="btn add-btn">Add</button>
+    </div>
+    <div class="divider"></div>
+    <div id="grid" class="ag-theme-alpine"></div>
+  </div>
+  <!-- <script src="ag-grid-community.js"></script> -->
+  <script type="module" src="renderer.js"></script>
+  <!-- <script>require("./renderer.js")</script> -->
+</body>
+
+</html>

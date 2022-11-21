@@ -1,0 +1,68 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+#grid {
+  width: 100%;
+  flex: 1;
+}
+.container {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: calc(100% - 2rem);
+  padding: 1rem;
+  width: 30rem;
+}
+.btn-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+.divider {
+  margin: 0.5rem 0;
+  background: #e6e6e6;
+  height: 0.125rem;
+}
+.checkbox {
+  height: 100%;
+  margin: 0;
+  width: 1.25rem;
+}
+.btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: #6b7280;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+}
+.btn:hover {
+  background: #9ca3af;
+  cursor: pointer;
+}
+.add-btn {
+  padding: 0.5rem;
+  background: #f97316;
+  border: none;
+}
+.add-btn:hover {
+  background: #fb923c;
+  cursor: pointer;
+}
+.remove-btn {
+  display: inline-flex;
+  max-height: 1.25rem;
+  max-width: 1.25rem;
+  font-size: 1.25rem;
+  justify-content: center;
+  align-items: center;
+  background-color: #ef4444;
+}
+.remove-btn:hover {
+  background-color: #f87171;
+}
