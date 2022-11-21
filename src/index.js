@@ -51,7 +51,8 @@ debug('main.js: %s %s', filename(), cl().line)
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
-const fs = require('fs/promises')
+// const fs = require('fs/promises')
+const file2lines = require('./file2lines')
 
 if (require('electron-squirrel-startup')) {
   app.quit()
@@ -126,12 +127,12 @@ const createWindow = () => {
 }
 
 // app.on('ready', createWindow)
-app.on('ready', () =>{
+app.on('ready', () => {
   // do menu, from official docs
   const { app, Menu } = require('electron')
 
   const isMac = process.platform === 'darwin'
-  
+
   const template = [
     // { role: 'appMenu' }
     ...(isMac ? [{
@@ -152,6 +153,57 @@ app.on('ready', () =>{
     {
       label: 'File',
       submenu: [
+        {
+          label: "Open File1",
+          accelerator: 'CmdOrCtrl+O',
+          role: 'open',
+          click: async () => {
+            debug('open file1')
+            try {
+              const { canceled, filePaths } = await dialog.showOpenDialog({
+                properties: ['openFile'],
+                filters: [
+                  {
+                    name: 'json',
+                    extensions: ['json']
+                  }
+                ]
+              })
+        
+              if (!canceled) {
+                const [filePath] = filePaths
+                // const data = await fs.readFile(filePath, 'utf8')
+
+                debug("filePath: %o", filePath)
+                const lines = (() => {
+                  try{
+                    debug("executing file2lines...")
+                    return file2lines(filePath)
+                  } catch (err){
+                    debug("%o file2lines err: %o", cl().line, err.message)
+                    // throw new Error(err.message)
+                    return []
+                  }})()
+        
+                debug('%o-ln-%o: { success: true, data }: %o', filename(), cl().line, { success: true, lines: lines })
+        
+                return { success: true, data }
+              } else {
+                return { canceled }
+              }
+            } catch (error) {
+              return { error }
+            }
+          }
+        }, 
+        {
+          label: "Open File2",
+          accelerator: 'CmdOrCtrl+P',
+          role: 'open',
+          click: async () => {
+            debug('open file2')
+          }
+        },
         isMac ? { role: 'close' } : { role: 'quit' }
       ]
     },
@@ -219,16 +271,26 @@ app.on('ready', () =>{
       role: 'help',
       submenu: [
         {
-          label: 'Learn More',
+          label: 'repo',
           click: async () => {
             const { shell } = require('electron')
-            await shell.openExternal('https://electronjs.org')
+            // await shell.openExternal('https://electronjs.org')
+            await shell.openExternal('https://github.com/ffreemt/ptextpad-electron')
+          }
+        },
+        {
+          label: 'qqgroup-316287378',
+          click: async () => {
+            const { shell } = require('electron')
+            // await shell.openExternal('https://electronjs.org')
+            // await shell.openExternal('https://github.com/ffreemt/ptextpad-electron')
+            await shell.openExternal('https://jq.qq.com/?_wv=1027&k=9018eFSV')
           }
         }
       ]
     }
   ]
-  
+
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
   createWindow()

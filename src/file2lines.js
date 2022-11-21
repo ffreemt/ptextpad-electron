@@ -30,7 +30,7 @@ const file2lines = (fileName, removeBlanks = true) => {
 
   if (removeBlanks) {
     // lines = lines.filter(s => s.trim())
-    return text.trim().split(/\n+/)
+    return text.trim().split(/[\r\n]+/)
   }
   return text.trim().split('\n')
 }
