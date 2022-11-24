@@ -3,13 +3,14 @@ const path = require('path')
 const createDebug = require('debug')
 // const fs = require("fs")
 
-// to turn off: not set DEBUG=debug
+// to turn off: unset DEBUG=debug, e.g. set DEBUG= or process.env.DEBUG=''
 // for colors: set DEBUG_COLORS=1
+
 const debug = createDebug('debug')
+
 const cl = require('get-current-line').default
-const filename = () => {
-  return `${cl().file.match(/[\w.-]+$/)[0]}`
-}
+const filename = `${cl().file.match(/[\w.-]+$/)[0]} `
+// filename + cl().line + ':'
 
 if (process.env.IS_DEV) {
   const devtools = require('electron-debug')
@@ -47,11 +48,11 @@ if (process.env.IS_DEV) {
 
 console.log("IS_DEV: ", process.env.IS_DEV)
 // console.log("debug: ", debug)
-debug('main.js: %s %s', filename(), cl().line)
+debug('main.js: %s %s', filename, cl().line)
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
-// const fs = require('fs/promises')
+const fs = require('fs/promises')
 const file2lines = require('./file2lines')
 
 if (require('electron-squirrel-startup')) {
@@ -120,7 +121,8 @@ const createWindow = () => {
   // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   // mainWindow.loadURL('index.html');
   mainWindow.loadFile(path.join(__dirname, 'index.html'))
-  debug(filename() + ' ' + cl().line + ' loadFile index.html loaded')
+  debug(filename + cl().line + ' loadFile index.html loaded')
+  debug('%O: loadFile index.html loaded', filename + cl().line)
 
   // mainWindow.webContents.openDevTools();
   handleCommunication()
@@ -158,7 +160,7 @@ app.on('ready', () => {
           accelerator: 'CmdOrCtrl+O',
           role: 'open',
           click: async () => {
-            debug('open file1')
+            debug('%o open file1', filename + cl().line)
             try {
               const { canceled, filePaths } = await dialog.showOpenDialog({
                 properties: ['openFile'],
@@ -169,25 +171,26 @@ app.on('ready', () => {
                   }
                 ]
               })
-        
+
               if (!canceled) {
                 const [filePath] = filePaths
                 // const data = await fs.readFile(filePath, 'utf8')
 
                 debug("filePath: %o", filePath)
                 const lines = (() => {
-                  try{
+                  try {
                     debug("executing file2lines...")
                     return file2lines(filePath)
-                  } catch (err){
+                  } catch (err) {
                     debug("%o file2lines err: %o", cl().line, err.message)
                     // throw new Error(err.message)
                     return []
-                  }})()
-        
-                debug('%o-ln-%o: { success: true, data }: %o', filename(), cl().line, { success: true, lines: lines })
-        
-                return { success: true, data }
+                  }
+                })()
+
+                debug('%o: { success: true, data }: %o', filename + cl().line, { success: true, lines: lines })
+
+                return { success: true, lines: lines }
               } else {
                 return { canceled }
               }
@@ -195,7 +198,7 @@ app.on('ready', () => {
               return { error }
             }
           }
-        }, 
+        },
         {
           label: "Open File2",
           accelerator: 'CmdOrCtrl+P',
@@ -256,7 +259,7 @@ app.on('ready', () => {
       label: 'Window',
       submenu: [
         { role: 'minimize' },
-        { role: 'zoom' },
+        // { role: 'zoom' },
         ...(isMac ? [
           { type: 'separator' },
           { role: 'front' },
@@ -271,7 +274,7 @@ app.on('ready', () => {
       role: 'help',
       submenu: [
         {
-          label: 'repo',
+          label: 'Goto repo',
           click: async () => {
             const { shell } = require('electron')
             // await shell.openExternal('https://electronjs.org')
@@ -279,7 +282,7 @@ app.on('ready', () => {
           }
         },
         {
-          label: 'qqgroup-316287378',
+          label: 'Join qqgroup-316287378',
           click: async () => {
             const { shell } = require('electron')
             // await shell.openExternal('https://electronjs.org')

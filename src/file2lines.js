@@ -32,7 +32,8 @@ const file2lines = (fileName, removeBlanks = true) => {
     // lines = lines.filter(s => s.trim())
     return text.trim().split(/[\r\n]+/)
   }
-  return text.trim().split('\n')
+  // map to remove possible \r
+  return text.trim().split('\n').map(_ => _.trim())
 }
 
 module.exports = file2lines

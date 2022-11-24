@@ -6,7 +6,7 @@
   "scripts": {
     "dev0": "nodemon -w . -x electron .",
     "dev1": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=1 electron .",
-    "dev": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=1 electron .",
+    "dev": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=true electron .",
     "dev2": "cross-env DEBUG=debug IS_DEV=1 electron .",
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",

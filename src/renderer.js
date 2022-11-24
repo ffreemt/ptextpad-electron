@@ -10,7 +10,7 @@ const fs = require("fs")
 
 console.log(" entry ")
 
-console.log("to turn log off: console.log = () => {}")
+console.log("to turn log on: console.log = () => {}")
 // console.log(" console.log turned off ")
 // console.log = () => {}
 
@@ -21,9 +21,9 @@ console.log("to turn log off: console.log = () => {}")
 let rowData = [];
 
 const columnDefs = [
-  { field: "task", editable: true, flex: 1 },
+  { field: "text1", editable: true, flex: 1 },
   {
-    field: "completed",
+    field: "text2",
     width: 120,
     cellRenderer(params) {
       const input = document.createElement("input");
@@ -39,14 +39,14 @@ const columnDefs = [
     },
   },
   {
-    field: "remove",
+    field: "metric",
     width: 100,
     cellRenderer(params) {
       const button = document.createElement("button");
-
+      
       button.textContent = "✕";
       button.classList.add("btn", "remove-btn");
-      button.addEventListener("click", () => removeTodo(params.rowIndex));
+    button.addEventListener("click", () => {console.log("params: ", params, params.column.colId); removeTodo(params.rowIndex)});
 
       return button;
     },
