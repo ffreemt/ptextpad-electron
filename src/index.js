@@ -54,12 +54,16 @@ debug('main.js: %s %s', filename, cl().line)
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const fs = require('fs/promises')
 const file2lines = require('./file2lines')
+const genRowdata = require('./genRowdata')
 
-const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
+// const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
+// const headers = ['text1', 'text2', 'metric']
+// const columnDefs = headers.map(el => { return { headerName: el, field: el } })
 
-const headers = ['text1', 'text2', 'metric']
-const columnDefs = headers.map(el => { return { headerName: el, field: el } })
-let mainWindow, col1 = [], col2 = [], col3 =[]
+let mainWindow
+let col1 = []
+const col2 = []
+const col3 = []
 
 if (require('electron-squirrel-startup')) {
   app.quit()
@@ -83,19 +87,21 @@ const loadFile1 = async (win) => {
       // const data = await fs.readFile(filePath, 'utf8')
 
       debug('filePath: %o', filePath)
-      const lines = (() => {
-        try {
-          debug('%o', 'executing file2lines...')
-          const _ = file2lines(filePath)
-          debug('%o: %O', filename + cl().line, _)
-          return _
-        } catch (err) {
-          debug('%o file2lines err: %o', cl().line, err.message)
-          // throw new Error(err.message)
-          return []
-        }
-      })()
-      debug('%o: %O', filename + cl().line, lines)
+      // col1 = (() => {
+      try {
+        debug('%o', 'executing file2lines...')
+        col1 = file2lines(filePath)
+        debug('%o: %O', filename + cl().line, col1)
+        // return _
+      } catch (err) {
+        debug('%o file2lines err: %o', cl().line, err.message)
+        // throw new Error(err.message)
+        // return []
+      }
+      // })()
+
+      // debug('%o: %O', filename + cl().line, lines)
+
       // const data = { data: lines }
       // debug("%o: %o", filename + cl().line, data)
       // debug('%o: { success: true, data }: %o', filename + cl().line, { success: true, data })
@@ -107,10 +113,11 @@ const loadFile1 = async (win) => {
                   {text1: 'aaa', text2: 'bbb', metric: 1},
                 ]
                 // */
-      const lines0 = [111, 'aaa']
-      const data = lines0.map(el => ({ text1: el }))
-      const _ = { success: true, data }
-      debug('%o %O', filename + cl().line, _)
+      // const lines0 = [111, 'aaa']
+      // const data = lines0.map(el => ({ text1: el }))
+
+      // const _ = { success: true, data }
+      // debug('%o %O', filename + cl().line, _)
 
       /*
        ipcMain.send('file1-content', (evt, data) =>{
@@ -118,8 +125,13 @@ const loadFile1 = async (win) => {
       })
       // */
       // mainWindow
-      win.webContents.send('file1-content', _)
-      return _
+      // win.webContents.send('file1-content', _)
+      // return _
+
+      const rowData = genRowdata(col1, col2, col3)
+
+      debug('%o, %o', filename + cl().line, rowData)
+      win.webContents.send('rowData', rowData)
     } else {
       return { canceled }
     }
@@ -231,7 +243,7 @@ app.on('ready', () => {
           label: 'Open File1',
           accelerator: 'CmdOrCtrl+O',
           role: 'open',
-          click: async ()=>{await loadFile1(mainWindow)}
+          click: async () => { await loadFile1(mainWindow) }
         },
         {
           label: 'Open File2',

@@ -18,7 +18,7 @@ const Store = require('electron-store');
 const store = new Store();
 
 store.set('unicorn', '🦄');
-console.log(store.get('unicorn')) 
+console.log(store.get('unicorn'))
 
 // this works with <script>require("./renderer.js")</script> in index.HTMLCollection
 // and webPreferences nodeIntegration: true,
@@ -48,10 +48,10 @@ const columnDefs0 = [
     width: 100,
     cellRenderer(params) {
       const button = document.createElement("button");
-      
+
       button.textContent = "✕";
       button.classList.add("btn", "remove-btn");
-    button.addEventListener("click", () => {console.log("params: ", params, params.column.colId); removeTodo(params.rowIndex)});
+      button.addEventListener("click", () => { console.log("params: ", params, params.column.colId); removeTodo(params.rowIndex) });
 
       return button;
     },
@@ -61,7 +61,11 @@ const columnDefs0 = [
 const headers = ['text1', 'text2', 'metric']
 // const columnDefs = headers.map(el => { return { headerName: el, field: el } })
 const columnDefs = [
-  { headerName: 'text1', field: "text1", editable: true, resizable: true, flex: 1 },
+  {
+    headerName: 'text1', field: "text1", editable: true, resizable: true, flex: 1, "resizable": true,
+    "autoHeight": true,
+    "wrapText": true,
+  },
   { headerName: 'text2', field: "text2", editable: true, resizable: true, flex: 1 },
   { headerName: 'metric', field: "metric", editable: true, width: 90 },
 ]
@@ -111,17 +115,17 @@ const saveToFile = async () => {
 
 const restoreFromFile = async () => {
   // const result = await window.electronAPI.restoreFromFile();
-  
+
   const result = await ipcRenderer.invoke("restore-from-file")
-  
+
   console.log(" result: ", result)
   console.log("typeof result: ", typeof result)
-  
+
   if (result.success) {
     let rowData
-    if (typeof result.data === 'string'){
+    if (typeof result.data === 'string') {
       rowData = JSON.parse(result.data);
-    } else{
+    } else {
       rowData = result.data
     }
     // rowData = JSON.parse(result.data);
@@ -137,17 +141,17 @@ const restoreFromFile = async () => {
 
 const restoreFromFile1 = (result) => {
   // const result = await window.electronAPI.restoreFromFile();
-  
+
   // const result = await ipcRenderer.invoke("restore-from-file")
-  
+
   console.log(" result: ", result)
   console.log("typeof result: ", typeof result)
-  
+
   if (result.success) {
     let rowData
-    if (typeof result.data === 'string'){
+    if (typeof result.data === 'string') {
       rowData = JSON.parse(result.data);
-    } else{
+    } else {
       rowData = result.data
     }
     // rowData = JSON.parse(result.data);
@@ -166,9 +170,9 @@ ipcRenderer.on('file1-content',
     console.log(' ipcRenderer.on("file1-content") ')
     console.log('%o', result)
     if (result.success) {
-      if (typeof result.data === 'string'){
+      if (typeof result.data === 'string') {
         rowData = JSON.parse(result.data);
-      } else{
+      } else {
         rowData = result.data
       }
       // rowData = JSON.parse(result.data);
@@ -178,7 +182,15 @@ ipcRenderer.on('file1-content',
       gridOptions.api.setRowData(rowData);
       // restoreFromFile1(result)
 
-    }  
+    }
+  }
+)
+
+ipcRenderer.on('rowData',
+  (evt, rowData) => {
+    console.log(' ipcRenderer.on("rowdata"): %o', rowData)
+    gridOptions.api.setRowData(rowData);
+    // restoreFromFile1(result)
   }
 )
 

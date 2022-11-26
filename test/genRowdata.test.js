@@ -4,6 +4,8 @@
 // import consola from "consola";
 
 const expect = require("chai").expect, assert = require('chai').assert;
+// assert = require('assert');
+
 const file2lines = require("../src/file2lines");
 const genRowdata = require("../src/genRowdata");
 
