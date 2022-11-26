@@ -12,3 +12,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
 });
 // */
+
+console.log("loading preload.js in index.js")

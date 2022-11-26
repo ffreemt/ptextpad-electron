@@ -16,9 +16,9 @@ if (process.env.IS_DEV) {
   const devtools = require('electron-debug')
   devtools()
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-  console.log("1 debug: %o", debug)
+  console.log('1 debug: %o')
 } else {
-  console.log("0 debug", debug)
+  console.log('0 debug')
 }
 
 /*
@@ -46,17 +46,82 @@ if (process.env.IS_DEV) {
 }
 */
 
-console.log("IS_DEV: ", process.env.IS_DEV)
+console.log('IS_DEV: ', process.env.IS_DEV)
 // console.log("debug: ", debug)
 debug('main.js: %s %s', filename, cl().line)
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const fs = require('fs/promises')
 const file2lines = require('./file2lines')
 
+let mainWindow
+
 if (require('electron-squirrel-startup')) {
   app.quit()
+}
+
+const loadFile1 = async (win) => {
+  debug('%o open file1', filename + cl().line)
+  try {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        {
+          name: 'json',
+          extensions: ['json']
+        }
+      ]
+    })
+
+    if (!canceled) {
+      const [filePath] = filePaths
+      // const data = await fs.readFile(filePath, 'utf8')
+
+      debug('filePath: %o', filePath)
+      const lines = (() => {
+        try {
+          debug('%o', 'executing file2lines...')
+          const _ = file2lines(filePath)
+          debug('%o: %O', filename + cl().line, _)
+          return _
+        } catch (err) {
+          debug('%o file2lines err: %o', cl().line, err.message)
+          // throw new Error(err.message)
+          return []
+        }
+      })()
+      debug('%o: %O', filename + cl().line, lines)
+      // const data = { data: lines }
+      // debug("%o: %o", filename + cl().line, data)
+      // debug('%o: { success: true, data }: %o', filename + cl().line, { success: true, data })
+
+      // const _ = { success: true, data: lines }
+      /*
+                [
+                  {text1: 111, text2: 222, metric: 0},
+                  {text1: 'aaa', text2: 'bbb', metric: 1},
+                ]
+                // */
+      const lines0 = [111, 'aaa']
+      const data = lines0.map(el => ({ text1: el }))
+      const _ = { success: true, data }
+      debug('%o %O', filename + cl().line, _)
+
+      /*
+       ipcMain.send('file1-content', (evt, data) =>{
+        debug('%o, %O', filename + cl().line, _)
+      })
+      // */
+      // mainWindow
+      win.webContents.send('file1-content', _)
+      return _
+    } else {
+      return { canceled }
+    }
+  } catch (error) {
+    return { error }
+  }
 }
 
 const handleCommunication = () => {
@@ -96,7 +161,7 @@ const handleCommunication = () => {
         const [filePath] = filePaths
         const data = await fs.readFile(filePath, 'utf8')
 
-        debug('ln-%o: { success: true, data }: %o', cl().line, { success: true, data })
+        debug('%o: { success: true, data }: %o', filename + cl().line, { success: true, data })
 
         return { success: true, data }
       } else {
@@ -108,7 +173,8 @@ const handleCommunication = () => {
   })
 }
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  // const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     webPreferences: {
       // preload1: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       preload: path.join(__dirname, 'preload.js'), // use a preload script
@@ -137,70 +203,34 @@ app.on('ready', () => {
 
   const template = [
     // { role: 'appMenu' }
-    ...(isMac ? [{
-      label: app.name,
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideOthers' },
-        { role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
-    }] : []),
+    ...(isMac
+      ? [{
+          label: app.name,
+          submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' }
+          ]
+        }]
+      : []),
     // { role: 'fileMenu' }
     {
       label: 'File',
       submenu: [
         {
-          label: "Open File1",
+          label: 'Open File1',
           accelerator: 'CmdOrCtrl+O',
           role: 'open',
-          click: async () => {
-            debug('%o open file1', filename + cl().line)
-            try {
-              const { canceled, filePaths } = await dialog.showOpenDialog({
-                properties: ['openFile'],
-                filters: [
-                  {
-                    name: 'json',
-                    extensions: ['json']
-                  }
-                ]
-              })
-
-              if (!canceled) {
-                const [filePath] = filePaths
-                // const data = await fs.readFile(filePath, 'utf8')
-
-                debug("filePath: %o", filePath)
-                const lines = (() => {
-                  try {
-                    debug("executing file2lines...")
-                    return file2lines(filePath)
-                  } catch (err) {
-                    debug("%o file2lines err: %o", cl().line, err.message)
-                    // throw new Error(err.message)
-                    return []
-                  }
-                })()
-
-                debug('%o: { success: true, data }: %o', filename + cl().line, { success: true, lines: lines })
-
-                return { success: true, lines: lines }
-              } else {
-                return { canceled }
-              }
-            } catch (error) {
-              return { error }
-            }
-          }
+          click: async ()=>{await loadFile1(mainWindow)}
         },
         {
-          label: "Open File2",
+          label: 'Open File2',
           accelerator: 'CmdOrCtrl+P',
           role: 'open',
           click: async () => {
@@ -220,23 +250,25 @@ app.on('ready', () => {
         { role: 'cut' },
         { role: 'copy' },
         { role: 'paste' },
-        ...(isMac ? [
-          { role: 'pasteAndMatchStyle' },
-          { role: 'delete' },
-          { role: 'selectAll' },
-          { type: 'separator' },
-          {
-            label: 'Speech',
-            submenu: [
-              { role: 'startSpeaking' },
-              { role: 'stopSpeaking' }
+        ...(isMac
+          ? [
+              { role: 'pasteAndMatchStyle' },
+              { role: 'delete' },
+              { role: 'selectAll' },
+              { type: 'separator' },
+              {
+                label: 'Speech',
+                submenu: [
+                  { role: 'startSpeaking' },
+                  { role: 'stopSpeaking' }
+                ]
+              }
             ]
-          }
-        ] : [
-          { role: 'delete' },
-          { type: 'separator' },
-          { role: 'selectAll' }
-        ])
+          : [
+              { role: 'delete' },
+              { type: 'separator' },
+              { role: 'selectAll' }
+            ])
       ]
     },
     // { role: 'viewMenu' }
@@ -260,14 +292,16 @@ app.on('ready', () => {
       submenu: [
         { role: 'minimize' },
         // { role: 'zoom' },
-        ...(isMac ? [
-          { type: 'separator' },
-          { role: 'front' },
-          { type: 'separator' },
-          { role: 'window' }
-        ] : [
-          { role: 'close' }
-        ])
+        ...(isMac
+          ? [
+              { type: 'separator' },
+              { role: 'front' },
+              { type: 'separator' },
+              { role: 'window' }
+            ]
+          : [
+              { role: 'close' }
+            ])
       ]
     },
     {

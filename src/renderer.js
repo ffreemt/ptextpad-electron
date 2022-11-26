@@ -14,13 +14,18 @@ console.log("to turn log on: console.log = () => {}")
 // console.log(" console.log turned off ")
 // console.log = () => {}
 
+const Store = require('electron-store');
+const store = new Store();
+
+store.set('unicorn', '🦄');
+console.log(store.get('unicorn')) 
 
 // this works with <script>require("./renderer.js")</script> in index.HTMLCollection
 // and webPreferences nodeIntegration: true,
 
 let rowData = [];
 
-const columnDefs = [
+const columnDefs0 = [
   { field: "text1", editable: true, flex: 1 },
   {
     field: "text2",
@@ -52,6 +57,14 @@ const columnDefs = [
     },
   },
 ];
+
+const headers = ['text1', 'text2', 'metric']
+// const columnDefs = headers.map(el => { return { headerName: el, field: el } })
+const columnDefs = [
+  { headerName: 'text1', field: "text1", editable: true, resizable: true, flex: 1 },
+  { headerName: 'text2', field: "text2", editable: true, resizable: true, flex: 1 },
+  { headerName: 'metric', field: "metric", editable: true, width: 90 },
+]
 const gridOptions = {
   columnDefs,
   rowData,
@@ -102,16 +115,79 @@ const restoreFromFile = async () => {
   const result = await ipcRenderer.invoke("restore-from-file")
   
   console.log(" result: ", result)
+  console.log("typeof result: ", typeof result)
   
   if (result.success) {
-    rowData = JSON.parse(result.data);
+    let rowData
+    if (typeof result.data === 'string'){
+      rowData = JSON.parse(result.data);
+    } else{
+      rowData = result.data
+    }
+    // rowData = JSON.parse(result.data);
+    console.log(" rowData: %o", rowData)
+    console.log("typeof rowData: ", typeof rowData)
+
+    console.log('gridOptions.api', gridOptions.api)
+    console.log('typeof gridOptions.api', typeof gridOptions.api)
+
     gridOptions.api.setRowData(rowData);
   }
 };
-const setupGrid = () => {
-  const gridDiv = document.getElementById("grid");
 
-  new Grid(gridDiv, gridOptions);
+const restoreFromFile1 = (result) => {
+  // const result = await window.electronAPI.restoreFromFile();
+  
+  // const result = await ipcRenderer.invoke("restore-from-file")
+  
+  console.log(" result: ", result)
+  console.log("typeof result: ", typeof result)
+  
+  if (result.success) {
+    let rowData
+    if (typeof result.data === 'string'){
+      rowData = JSON.parse(result.data);
+    } else{
+      rowData = result.data
+    }
+    // rowData = JSON.parse(result.data);
+    console.log(" rowData: ", rowData)
+    console.log("typeof rowData: ", typeof rowData)
+
+    console.log('gridOptions.api', gridOptions.api)
+    console.log('typeof gridOptions.api', typeof gridOptions.api)
+
+    gridOptions.api.setRowData(rowData);
+  }
+};
+
+ipcRenderer.on('file1-content',
+  async (evt, result) => {
+    console.log(' ipcRenderer.on("file1-content") ')
+    console.log('%o', result)
+    if (result.success) {
+      if (typeof result.data === 'string'){
+        rowData = JSON.parse(result.data);
+      } else{
+        rowData = result.data
+      }
+      // rowData = JSON.parse(result.data);
+
+      console.log('%o', rowData)
+
+      gridOptions.api.setRowData(rowData);
+      // restoreFromFile1(result)
+
+    }  
+  }
+)
+
+const gridDiv = document.getElementById("grid");
+
+new Grid(gridDiv, gridOptions);
+
+const setupGrid = () => {
+
   addBtn.addEventListener("click", addTodo);
   saveBtn.addEventListener("click", saveToFile);
   restoreBtn.addEventListener("click", restoreFromFile);

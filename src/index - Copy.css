@@ -15,7 +15,7 @@ body {
   flex-direction: column;
   height: calc(100% - 2rem);
   padding: 1rem;
-  width: 95%;
+  width: 30rem;
 }
 .btn-container {
   display: grid;
