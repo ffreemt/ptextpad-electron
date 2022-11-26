@@ -55,7 +55,11 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const fs = require('fs/promises')
 const file2lines = require('./file2lines')
 
-let mainWindow
+const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
+
+const headers = ['text1', 'text2', 'metric']
+const columnDefs = headers.map(el => { return { headerName: el, field: el } })
+let mainWindow, col1 = [], col2 = [], col3 =[]
 
 if (require('electron-squirrel-startup')) {
   app.quit()
