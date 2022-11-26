@@ -62,11 +62,13 @@ const headers = ['text1', 'text2', 'metric']
 // const columnDefs = headers.map(el => { return { headerName: el, field: el } })
 const columnDefs = [
   {
-    headerName: 'text1', field: "text1", editable: true, resizable: true, flex: 1, "resizable": true,
+    headerName: 'text1', field: "text1", editable: true, flex: 1, "resizable": true,
     "autoHeight": true,
     "wrapText": true,
   },
-  { headerName: 'text2', field: "text2", editable: true, resizable: true, flex: 1 },
+  { headerName: 'text2', field: "text2", editable: true, flex: 1, "resizable": true,
+    "autoHeight": true,
+    "wrapText": true },
   { headerName: 'metric', field: "metric", editable: true, width: 90 },
 ]
 const gridOptions = {
