@@ -62,14 +62,29 @@ const headers = ['text1', 'text2', 'metric']
 // const columnDefs = headers.map(el => { return { headerName: el, field: el } })
 const columnDefs = [
   {
-    headerName: 'text1', field: "text1", editable: true, flex: 1, "resizable": true,
-    "autoHeight": true,
-    "wrapText": true,
+    headerName: 'text1', 
+    field: "text1", 
+    editable: true, 
+    flex: 1, 
+    resizable: true,
+    autoHeight: true,
+    wrapText: true
   },
-  { headerName: 'text2', field: "text2", editable: true, flex: 1, "resizable": true,
-    "autoHeight": true,
-    "wrapText": true },
-  { headerName: 'metric', field: "metric", editable: true, width: 90 },
+  { 
+    headerName: 'text2', 
+  field: "text2", 
+  editable: true, 
+  flex: 1, 
+  resizable: true,
+    autoHeight: true,
+    wrapText: true 
+  },
+  { 
+    headerName: 'metric', 
+    field: "metric", 
+    editable: true, 
+    width: 90 
+  },
 ]
 const gridOptions = {
   columnDefs,
@@ -98,7 +113,7 @@ const removeTodo = (rowIndex) => {
 // https://brainbell.com/javascript/show-save-dialog.html
 // const {remote} = require('electron'),
 
-const { ipcRenderer } = require("electron") //https://stackoverflow.com/questions/36637201/requiring-electron-dialog-from-render-process-is-undefined
+const { ipcRenderer } = require("electron") // https://stackoverflow.com/questions/36637201/requiring-electron-dialog-from-render-process-is-undefined
 
 const saveToFile = async () => {
   // window.electronAPI.saveToFile(JSON.stringify(rowData));
@@ -189,7 +204,7 @@ ipcRenderer.on('file1-content',
 )
 
 ipcRenderer.on('rowData',
-  (evt, rowData) => {
+  async (evt, rowData) => {
     console.log(' ipcRenderer.on("rowdata"): %o', rowData)
     gridOptions.api.setRowData(rowData);
     // restoreFromFile1(result)
