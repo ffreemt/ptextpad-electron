@@ -276,6 +276,30 @@ app.on('ready', () => {
           role: 'open',
           click: async () => {
             debug('%o open file2', fn + cl().line)
+            try {
+              const res = await loadFile(mainWindow, 2)
+              if (res.success) {
+                dialog.showMessageBox(
+                  {
+                    titile: 'Info', 
+                    message: 'File 2 successfully loaded.',
+                    buttons: ['OK'],
+                    type: 'info', // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                  }
+                  )
+                } else {
+                  dialog.showMessageBox(
+                    {
+                      titile: 'Info', 
+                      message: 'Loading File 2 canceled.',
+                      buttons: ['OK'],
+                      type: 'warning', // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                    }
+                    )
+                  }
+            } catch (err) {
+              dialog.showErrorBox('Error', err)
+            }
           }
         },
         isMac ? { role: 'close' } : { role: 'quit' }
