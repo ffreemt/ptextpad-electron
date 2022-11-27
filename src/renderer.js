@@ -83,7 +83,7 @@ const columnDefs = [
     headerName: 'metric', 
     field: "metric", 
     editable: true, 
-    width: 90 
+    width: 85 
   },
 ]
 const gridOptions = {

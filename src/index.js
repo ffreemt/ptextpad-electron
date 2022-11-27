@@ -72,7 +72,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const loadFile = async (win, file = 1) => {
-  debug('%o open file1', fn + cl().line)
+  debug('%o open file %o', fn + cl().line, file)
   const properties = ['openFile']
   if (file === 1) {
     properties.push('multiSelections')
@@ -83,8 +83,8 @@ const loadFile = async (win, file = 1) => {
       properties,
       filters: [
         {
-          name: 'json',
-          extensions: ['json']
+          name: 'textfile',
+          extensions: ['txt', 'md']
         }
       ]
     })
@@ -99,7 +99,7 @@ const loadFile = async (win, file = 1) => {
       debug('%o filePath: %o', fn + cl().line, filePaths)
       // col1 = (() => {
       try {
-        debug('%o', 'executing file2lines...')
+        debug('%o executing file2lines...%o', fn + cl().line, file)
         if (file === 1) {
           for (const [idx, filePath] of filePaths.slice(0, 22).entries()) {
             debug('%o: %o, %o', fn + cl().line, idx, filePath)
@@ -114,7 +114,7 @@ const loadFile = async (win, file = 1) => {
           col2 = file2lines(filePath)
         }
 
-        debug('%o: %O', fn + cl().line, col1)
+        debug('%o: %o, %o', fn + cl().line, col1, col2)
         // return _
       } catch (err) {
         debug('%o file2lines err: %o', cl().line, err.message)
@@ -155,6 +155,7 @@ const loadFile = async (win, file = 1) => {
 
       // debug('%o, %o', fn + cl().line, rowData)
       win.webContents.send('rowData', rowData)
+      return { success: true, rowData }
     } else {
       debug('%o, conceled', fn + cl().line)
       return { canceled }
@@ -276,30 +277,34 @@ app.on('ready', () => {
           role: 'open',
           click: async () => {
             debug('%o open file2', fn + cl().line)
+            let res = []
             try {
-              const res = await loadFile(mainWindow, 2)
-              if (res.success) {
-                dialog.showMessageBox(
-                  {
-                    titile: 'Info', 
-                    message: 'File 2 successfully loaded.',
-                    buttons: ['OK'],
-                    type: 'info', // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
-                  }
-                  )
-                } else {
-                  dialog.showMessageBox(
-                    {
-                      titile: 'Info', 
-                      message: 'Loading File 2 canceled.',
-                      buttons: ['OK'],
-                      type: 'warning', // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
-                    }
-                    )
-                  }
+              res = await loadFile(mainWindow, 2)
+              debug('%o %o', fn + cl().line, res)
             } catch (err) {
               dialog.showErrorBox('Error', err)
             }
+            debug('%o %o', fn + cl().line, res)
+            if (res.success) {
+              dialog.showMessageBox(
+                {
+                  message: 'File 2 successfully loaded.',
+                  title: 'Info',
+                  buttons: ['OK'],
+                  type: 'info', // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                }
+                )
+              } else {
+                dialog.showMessageBox(
+                  {
+                    message: 'Loading File 2 canceled.',
+                    title: 'Info',
+                    buttons: ['OK'],
+                    type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                  }
+                  )
+              }
+
           }
         },
         isMac ? { role: 'close' } : { role: 'quit' }
