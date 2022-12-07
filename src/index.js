@@ -6,10 +6,20 @@ const createDebug = require('debug')
 // to turn off: unset DEBUG=debug, e.g. set DEBUG= or process.env.DEBUG=''
 // for colors: set DEBUG_COLORS=1
 
-const debug = createDebug('debug')
+// const debug = createDebug('debug')
+// const cl = require('get-current-line').default
+// const fn = `${cl().file.match(/[\w.-]+$/)[0]} `
 
-const cl = require('get-current-line').default
-const fn = `${cl().file.match(/[\w.-]+$/)[0]} `
+// const consola = require('consola')
+// consola.level = process.env.CONSOLA_DEBUG || 4
+
+const assert = require('assert');
+
+const logger = require('tracer').colorConsole({
+  format: '{{timestamp}} <{{title}}>{{file}}:{{line}}: {{message}}',
+  dateformat: 'HH:MM:ss.L',
+  level: process.env.TRACER_DEBUG || 'debug' // 'info'
+})
 
 // fn + cl().line + ':'
 
@@ -48,12 +58,14 @@ if (process.env.IS_DEV) {
 */
 
 console.log('IS_DEV: ', process.env.IS_DEV)
+logger.debug('IS_DEV: ', process.env.IS_DEV)
 // console.log("debug: ", debug)
-debug('main.js: %s %s', fn, cl().line)
+// debug('main.js: %s %s', fn, cl().line)
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const fs = require('fs/promises')
+const { spawn } = require('node:child_process')
 const file2lines = require('./file2lines')
 const genRowdata = require('./genRowdata')
 
@@ -72,7 +84,7 @@ if (require('electron-squirrel-startup')) {
 }
 
 const loadFile = async (win, file = 1) => {
-  debug('%o open file %o', fn + cl().line, file)
+  // debug('%o open file %o', fn + cl().line, file)
   const properties = ['openFile']
   if (file === 1) {
     properties.push('multiSelections')
@@ -89,20 +101,22 @@ const loadFile = async (win, file = 1) => {
       ]
     })
 
-    debug('%o, %o', fn + cl().line, filePaths)
+    // debug('%o, %o', fn + cl().line, filePaths)
+    logger.debug('loaded: %s', filePaths)
 
     if (!canceled) {
       // const [filePath] = filePaths
 
       // const data = await fs.readFile(filePath, 'utf8')
 
-      debug('%o filePath: %o', fn + cl().line, filePaths)
+      // debug('%o filePath: %o', fn + cl().line, filePaths)
       // col1 = (() => {
       try {
-        debug('%o executing file2lines...%o', fn + cl().line, file)
+        // debug('%o executing file2lines...%o', fn + cl().line, file)
+        logger.debug('executing file2lines(%s)... ', file)
         if (file === 1) {
           for (const [idx, filePath] of filePaths.slice(0, 22).entries()) {
-            debug('%o: %o, %o', fn + cl().line, idx, filePath)
+            // debug('%o: %o, %o', fn + cl().line, idx, filePath)
             if (idx) {
               col2 = file2lines(filePath)
             } else {
@@ -114,10 +128,10 @@ const loadFile = async (win, file = 1) => {
           col2 = file2lines(filePath)
         }
 
-        debug('%o: %o, %o', fn + cl().line, col1, col2)
+        // debug('%o: %o, %o', fn + cl().line, col1, col2)
         // return _
       } catch (err) {
-        debug('%o file2lines err: %o', cl().line, err.message)
+        // debug('%o file2lines err: %o', cl().line, err.message)
         // throw new Error(err.message)
         // return []
       }
@@ -151,17 +165,19 @@ const loadFile = async (win, file = 1) => {
       // win.webContents.send('file1-content', _)
       // return _
 
-      const rowData = genRowdata(col1, col2, col3)
+      const rowData = genRowdata({ col1, col2, col3 })
 
       // debug('%o, %o', fn + cl().line, rowData)
       win.webContents.send('rowData', rowData)
       return { success: true, rowData }
     } else {
-      debug('%o, conceled', fn + cl().line)
+      // debug('%o, conceled', fn + cl().line)
+      logger.debug(' conceled')
       return { canceled }
     }
   } catch (error) {
-    debug('%o, error: %o', fn + cl().line, error)
+    // debug('%o, error: %o', fn + cl().line, error)
+    logger.debug('error: %s', error)
     return { error }
   }
 }
@@ -202,9 +218,6 @@ const handleCommunication = () => {
       if (!canceled) {
         const [filePath] = filePaths
         const data = await fs.readFile(filePath, 'utf8')
-
-        debug('%o: { success: true, data }: %o', fn + cl().line, { success: true, data })
-
         return { success: true, data }
       } else {
         return { canceled }
@@ -229,14 +242,17 @@ const createWindow = () => {
   // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   // mainWindow.loadURL('index.html');
   mainWindow.loadFile(path.join(__dirname, 'index.html'))
-  debug(fn + cl().line + ' loadFile index.html loaded')
-  debug('%O: loadFile index.html loaded', fn + cl().line)
-
+  
+  // debug(fn + cl().line + ' loadFile index.html loaded')
+  // debug('%O: loadFile index.html loaded', fn + cl().line)
+  logger.debug(' index.html loaded') 
+  
   // mainWindow.webContents.openDevTools();
   handleCommunication()
 }
 
 // app.on('ready', createWindow)
+
 app.on('ready', () => {
   // do menu, from official docs
   const { app, Menu } = require('electron')
@@ -247,19 +263,19 @@ app.on('ready', () => {
     // { role: 'appMenu' }
     ...(isMac
       ? [{
-        label: app.name,
-        submenu: [
-          { role: 'about' },
-          { type: 'separator' },
-          { role: 'services' },
-          { type: 'separator' },
-          { role: 'hide' },
-          { role: 'hideOthers' },
-          { role: 'unhide' },
-          { type: 'separator' },
-          { role: 'quit' }
-        ]
-      }]
+          label: app.name,
+          submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' }
+          ]
+        }]
       : []),
     // { role: 'fileMenu' }
     {
@@ -276,35 +292,33 @@ app.on('ready', () => {
           accelerator: 'CmdOrCtrl+P',
           role: 'open',
           click: async () => {
-            debug('%o open file2', fn + cl().line)
+            // debug('%o open file2', fn + cl().line)
+            logger.debug('open file2')
             let res = []
             try {
               res = await loadFile(mainWindow, 2)
-              debug('%o %o', fn + cl().line, res)
             } catch (err) {
               dialog.showErrorBox('Error', err)
             }
-            debug('%o %o', fn + cl().line, res)
             if (res.success) {
               dialog.showMessageBox(
                 {
                   message: 'File 2 successfully loaded.',
                   title: 'Info',
                   buttons: ['OK'],
-                  type: 'info', // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                  type: 'info' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
                 }
-                )
-              } else {
-                dialog.showMessageBox(
-                  {
-                    message: 'Loading File 2 canceled.',
-                    title: 'Info',
-                    buttons: ['OK'],
-                    type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
-                  }
-                  )
-              }
-
+              )
+            } else {
+              dialog.showMessageBox(
+                {
+                  message: 'Loading File 2 canceled.',
+                  title: 'Info',
+                  buttons: ['OK'],
+                  type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                }
+              )
+            }
           }
         },
         isMac ? { role: 'close' } : { role: 'quit' }
@@ -322,23 +336,23 @@ app.on('ready', () => {
         { role: 'paste' },
         ...(isMac
           ? [
-            { role: 'pasteAndMatchStyle' },
-            { role: 'delete' },
-            { role: 'selectAll' },
-            { type: 'separator' },
-            {
-              label: 'Speech',
-              submenu: [
-                { role: 'startSpeaking' },
-                { role: 'stopSpeaking' }
-              ]
-            }
-          ]
+              { role: 'pasteAndMatchStyle' },
+              { role: 'delete' },
+              { role: 'selectAll' },
+              { type: 'separator' },
+              {
+                label: 'Speech',
+                submenu: [
+                  { role: 'startSpeaking' },
+                  { role: 'stopSpeaking' }
+                ]
+              }
+            ]
           : [
-            { role: 'delete' },
-            { type: 'separator' },
-            { role: 'selectAll' }
-          ])
+              { role: 'delete' },
+              { type: 'separator' },
+              { role: 'selectAll' }
+            ])
       ]
     },
     // { role: 'viewMenu' }
@@ -364,14 +378,14 @@ app.on('ready', () => {
         // { role: 'zoom' },
         ...(isMac
           ? [
-            { type: 'separator' },
-            { role: 'front' },
-            { type: 'separator' },
-            { role: 'window' }
-          ]
+              { type: 'separator' },
+              { role: 'front' },
+              { type: 'separator' },
+              { role: 'window' }
+            ]
           : [
-            { role: 'close' }
-          ])
+              { role: 'close' }
+            ])
       ]
     },
     {
@@ -401,7 +415,28 @@ app.on('ready', () => {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
   createWindow()
+  
+  // console.log('process.cwd()：', process.cwd())
+  // consola.log('process.cwd()：', process.cwd())
+  logger.debug('process.cwd()：', process.cwd())
+  
+  // start zmq(zmq.REP) at default port 5555
+  // python\install\python.exe -s -m dezmq
+  const python = spawn('python/install/python.exe', ['-s', '-m', 'dezmq']);
+
+  python.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`)
+  })
+
+  python.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  })
+
+  python.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  })
 })
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()

@@ -1,4 +1,4 @@
-// Convert a file to list of paras/lines, readmove blank lines
+// Convert a file to list of paras/lines, remove blank lines
 // const fs = require('fs/promises')
 'use strict'
 const fs = require('fs')
@@ -7,6 +7,7 @@ const iconv = require('iconv-lite')
 
 const file2lines = (fileName, removeBlanks = true) => {
   let content, text
+  // console.log('cwd: %s', process.cwd())
   try {
     content = fs.readFileSync(fileName)
   } catch (err) {
@@ -26,6 +27,7 @@ const file2lines = (fileName, removeBlanks = true) => {
     console.log(err.name)
     throw err.message
   }
+  // delete content (release memory)
   content = undefined
 
   if (removeBlanks) {
