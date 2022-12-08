@@ -15,7 +15,6 @@ specifiers:
   electron-debug: ^3.2.0
   electron-squirrel-startup: ^1.0.0
   electron-store: ^8.1.0
-  get-current-line: ^6.6.0
   iconv-lite: ^0.6.3
   jschardet: ^3.0.0
   mocha: ^10.1.0
@@ -27,7 +26,6 @@ dependencies:
   debug: 4.3.4
   electron-squirrel-startup: 1.0.0
   electron-store: 8.1.0
-  get-current-line: 6.6.0
   iconv-lite: 0.6.3
   jschardet: 3.0.0
   tracer: 1.1.6
@@ -1731,11 +1729,6 @@ packages:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
     dev: true
-
-  /get-current-line/6.6.0:
-    resolution: {integrity: sha512-9q/tqdL4+GMb0P28N/oSFruQE/8Sa1l9ew73AWS4j/KEMY32wD8+5QRB8LSTgt9HUZuLplmi8vc5dFFf5OvROA==}
-    engines: {node: '>=10'}
-    dev: false
 
   /get-folder-size/2.0.1:
     resolution: {integrity: sha512-+CEb+GDCM7tkOS2wdMKTn9vU7DgnKUTuDlehkNJKNSovdCOVxs14OfKCk4cvSaR3za4gj+OBdl9opPN9xrJ0zA==}

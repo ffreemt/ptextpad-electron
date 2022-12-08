@@ -5,3 +5,15 @@
 A parallel text editor using electron
 
 Coming soon...
+
+## Firewall warning
+
+`ptextpad-el` uses default port 5555 for inter-process communications between python (ezbee) and nodejs. `dezmq` (python) opens port 5555 in `zmq.REP` mode that provides alignment result from ezbee (maybe later on `dzbee` and `debee` as well). nodejs sends texts ro `dezmq`.
+
+Hence, the first time you run `ptextpad-el`, you'll be asked to permit the opening of that port.  
+
+## Debug
+
+To turn on debug
+* `nodejs`: set/export TRACER_DEBUG=debug
+* `python`: set/export LOGLEVEL=10

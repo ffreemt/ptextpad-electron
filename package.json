@@ -39,7 +39,6 @@
     "debug": "^4.3.4",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
-    "get-current-line": "^6.6.0",
     "iconv-lite": "^0.6.3",
     "jschardet": "^3.0.0",
     "tracer": "^1.1.6",

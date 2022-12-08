@@ -1,5 +1,5 @@
 'use strict'
-const path = require('path')
+
 const createDebug = require('debug')
 // const fs = require("fs")
 
@@ -20,6 +20,8 @@ const logger = require('tracer').colorConsole({
   dateformat: 'HH:MM:ss.L',
   level: process.env.TRACER_DEBUG || 'debug' // 'info'
 })
+// const logger = {}
+// logger.debug = () => {}
 
 // fn + cl().line + ':'
 
@@ -27,10 +29,13 @@ if (process.env.IS_DEV) {
   const devtools = require('electron-debug')
   devtools()
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-  console.log('1 debug: %o')
+  console.log('1 debug')
+  logger.debug('1 debug')
 } else {
+  logger.debug('0 debug')
   console.log('0 debug')
 }
+logger.info(' entry ... ')
 
 /*
 let debug = null, cl = null, fn = null
@@ -65,6 +70,7 @@ logger.debug('IS_DEV: ', process.env.IS_DEV)
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const fs = require('fs/promises')
+const path = require('path')
 const { spawn } = require('node:child_process')
 const file2lines = require('./file2lines')
 const genRowdata = require('./genRowdata')
@@ -422,7 +428,9 @@ app.on('ready', () => {
   
   // start zmq(zmq.REP) at default port 5555
   // python\install\python.exe -s -m dezmq
-  const python = spawn('python/install/python.exe', ['-s', '-m', 'dezmq']);
+  // const python = spawn('python/install/python.exe', ['-s', '-m', 'dezmq']);
+  const python_exc_path = path.join(__dirname, '../python/install/python.exe')
+  const python = spawn(python_exc_path, ['-s', '-m', 'dezmq']);
 
   python.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`)

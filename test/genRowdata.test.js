@@ -17,7 +17,7 @@ const file2lines = require('../src/file2lines')
 const genRowdata = require('../src/genRowdata')
 
 const consola = require('consola')
-consola.level = process.env.CONSOLA_DEBUG || 3 // set CONSOLA_DEBUG=4 to show debug
+consola.level = process.env.CONSOLA_DEBUG || 4 // set CONSOLA_DEBUG=4 to show debug
 
 // yarn test -f "@1 genRowdata"
 describe('@1 genRowdata: sanity test ', () => {
