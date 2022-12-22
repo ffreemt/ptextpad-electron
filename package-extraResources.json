@@ -1,0 +1,10 @@
+,
+    "extraResources": [
+      {
+        "from": "python/",
+        "to": "app/python/",
+        "filter": [
+          "**/{cmat2aset,fast_scores,process_en,process_zh,word_tr}.pyc"
+        ]
+      }
+    ]

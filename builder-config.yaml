@@ -1,0 +1,28 @@
+directories:
+  output: dist
+  buildResources: build
+asar: false
+files:
+  - filter:
+      - '**/*'
+      - '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}'
+      - '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}'
+      - '!**/node_modules/*.d.ts'
+      - '!**/node_modules/.bin'
+      - '!**/*.{iml,o,hprof,orig,pyo,rbc,swp,csproj,sln,xproj}'
+      - '!.editorconfig'
+      - '!**/._*'
+      - '!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}'
+      - '!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}'
+      - '!**/{appveyor.yml,.travis.yml,circle.yml}'
+      - '!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}'
+      - '**/*.pyc'
+      # - python/install/Lib/site-packages/cmat2aset/cmat2aset.pyc
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+extraResources:
+  - filter:
+      - 'python/**/*.pyc'
+electronVersion: 21.2.3

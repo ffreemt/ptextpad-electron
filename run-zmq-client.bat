@@ -1,1 +1,1 @@
-nodemon -w zmq-client.js zmq-client.js 
+nodemon -w zmq-client.js -x node zmq-client.js 

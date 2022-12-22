@@ -1,16 +1,18 @@
 {
   "name": "ptextpad-el",
-  "version": "0.0.1",
+  "version": "0.0.2-2",
   "description": "A parallel text editor using electron",
   "main": "src/index.js",
   "scripts": {
+    "start": "electron-forge start",
     "dev0": "nodemon -w . -x electron .",
     "dev1": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=1 electron .",
     "dev": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=true electron .",
     "dev2": "cross-env DEBUG=debug IS_DEV=1 electron .",
-    "start": "electron-forge start",
     "test-r": "mocha -r esm -t 4000",
     "test": "mocha -t 4000",
+    "builder": "electron-builder --win",
+    "builder-yaml": "electron-builder --win --config builder-config.yaml",
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
@@ -36,12 +38,20 @@
   },
   "dependencies": {
     "ag-grid-community": "^28.2.1",
+    "axios": "^1.2.1",
     "debug": "^4.3.4",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
     "iconv-lite": "^0.6.3",
     "jschardet": "^3.0.0",
-    "tracer": "^1.1.6",
-    "zeromq": "6.0.0-beta.10"
+    "tracer": "^1.1.6"
+  },
+  "build": {
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true
+    },
+    "asar": true
   }
 }

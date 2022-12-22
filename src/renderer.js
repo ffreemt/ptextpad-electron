@@ -62,28 +62,28 @@ const headers = ['text1', 'text2', 'metric']
 // const columnDefs = headers.map(el => { return { headerName: el, field: el } })
 const columnDefs = [
   {
-    headerName: 'text1', 
-    field: "text1", 
-    editable: true, 
-    flex: 1, 
+    headerName: 'text1',
+    field: "text1",
+    editable: true,
+    flex: 1,
     resizable: true,
     autoHeight: true,
     wrapText: true
   },
-  { 
-    headerName: 'text2', 
-  field: "text2", 
-  editable: true, 
-  flex: 1, 
+  {
+    headerName: 'text2',
+  field: "text2",
+  editable: true,
+  flex: 1,
   resizable: true,
     autoHeight: true,
-    wrapText: true 
+    wrapText: true
   },
-  { 
-    headerName: 'metric', 
-    field: "metric", 
-    editable: true, 
-    width: 85 
+  {
+    headerName: 'metric',
+    field: "metric",
+    editable: true,
+    width: 85
   },
 ]
 const gridOptions = {
@@ -118,7 +118,7 @@ const { ipcRenderer } = require("electron") // https://stackoverflow.com/questio
 const saveToFile = async () => {
   // window.electronAPI.saveToFile(JSON.stringify(rowData));
   console.log("renderer.js saveToFile() ")
-  // let toLocalPath = path.resolve(app.getPath("desktop"), path.basename(remoteUrl)) 
+  // let toLocalPath = path.resolve(app.getPath("desktop"), path.basename(remoteUrl))
 
   let res = ipcRenderer.invoke("save-to-file", JSON.stringify(rowData))
   // console.log(res)
@@ -205,7 +205,7 @@ ipcRenderer.on('file1-content',
 
 ipcRenderer.on('rowData',
   async (evt, rowData) => {
-    console.log(' ipcRenderer.on("rowdata"): %o', rowData)
+    // console.log(' ipcRenderer.on("rowdata"): %o', rowData)
     gridOptions.api.setRowData(rowData);
     // restoreFromFile1(result)
   }

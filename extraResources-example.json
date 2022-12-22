@@ -1,0 +1,26 @@
+{"source": "https://stackoverflow.com/questions/62436295/electron-builder-and-asset-files",
+
+"extraResources": [
+      {
+        "from": "files/",
+        "to": "files/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "assets/",
+        "to": "assets/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "accounts/",
+        "to": "accounts/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+}

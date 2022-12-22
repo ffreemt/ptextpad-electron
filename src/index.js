@@ -1,6 +1,6 @@
 'use strict'
 
-const createDebug = require('debug')
+// const createDebug = require('debug')
 // const fs = require("fs")
 
 // to turn off: unset DEBUG=debug, e.g. set DEBUG= or process.env.DEBUG=''
@@ -13,12 +13,12 @@ const createDebug = require('debug')
 // const consola = require('consola')
 // consola.level = process.env.CONSOLA_DEBUG || 4
 
-const assert = require('assert');
+// const assert = require('assert')
 
 const logger = require('tracer').colorConsole({
   format: '{{timestamp}} <{{title}}>{{file}}:{{line}}: {{message}}',
   dateformat: 'HH:MM:ss.L',
-  level: process.env.TRACER_DEBUG || 'debug' // 'info'
+  level: process.env.TRACER_DEBUG || 'info' // 'debug'
 })
 // const logger = {}
 // logger.debug = () => {}
@@ -74,6 +74,21 @@ const path = require('path')
 const { spawn } = require('node:child_process')
 const file2lines = require('./file2lines')
 const genRowdata = require('./genRowdata')
+// const zmqAlign = require('./zmqAlign')
+const restAlign = require('./restAlign')
+
+const file1 = './data/test-en.txt'
+const file2 = './data/test-zh.txt'
+
+// const lines1 = file2lines(file1)
+// const lines2 = file2lines(file2)
+const lines1 = () => {
+  try { return file2lines(file1) }
+  catch (e) {return path.resolve(file1) + ': ' + e.name + ' ' + e.message}
+}
+const lines2 = () => {
+  try { return file2lines(file2) }
+  catch (e) {return path.resolve(file2) + ': ' + e.name + ' ' + e.message}}
 
 // const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
 // const headers = ['text1', 'text2', 'metric']
@@ -116,13 +131,10 @@ const loadFile = async (win, file = 1) => {
       // const data = await fs.readFile(filePath, 'utf8')
 
       // debug('%o filePath: %o', fn + cl().line, filePaths)
-      // col1 = (() => {
       try {
-        // debug('%o executing file2lines...%o', fn + cl().line, file)
         logger.debug('executing file2lines(%s)... ', file)
         if (file === 1) {
           for (const [idx, filePath] of filePaths.slice(0, 22).entries()) {
-            // debug('%o: %o, %o', fn + cl().line, idx, filePath)
             if (idx) {
               col2 = file2lines(filePath)
             } else {
@@ -134,28 +146,17 @@ const loadFile = async (win, file = 1) => {
           col2 = file2lines(filePath)
         }
 
-        // debug('%o: %o, %o', fn + cl().line, col1, col2)
-        // return _
       } catch (err) {
-        // debug('%o file2lines err: %o', cl().line, err.message)
-        // throw new Error(err.message)
-        // return []
+        throw new Error(err.message)
       }
-      // })()
 
-      // debug('%o: %O', fn + cl().line, lines)
-
-      // const data = { data: lines }
-      // debug("%o: %o", fn + cl().line, data)
-      // debug('%o: { success: true, data }: %o', fn + cl().line, { success: true, data })
-
-      // const _ = { success: true, data: lines }
       /*
-                [
-                  {text1: 111, text2: 222, metric: 0},
-                  {text1: 'aaa', text2: 'bbb', metric: 1},
-                ]
-                // */
+        [
+          {text1: 111, text2: 222, metric: 0},
+          {text1: 'aaa', text2: 'bbb', metric: 1},
+        ]
+      // */
+
       // const lines0 = [111, 'aaa']
       // const data = lines0.map(el => ({ text1: el }))
 
@@ -173,16 +174,13 @@ const loadFile = async (win, file = 1) => {
 
       const rowData = genRowdata({ col1, col2, col3 })
 
-      // debug('%o, %o', fn + cl().line, rowData)
       win.webContents.send('rowData', rowData)
       return { success: true, rowData }
     } else {
-      // debug('%o, conceled', fn + cl().line)
       logger.debug(' conceled')
       return { canceled }
     }
   } catch (error) {
-    // debug('%o, error: %o', fn + cl().line, error)
     logger.debug('error: %s', error)
     return { error }
   }
@@ -248,11 +246,9 @@ const createWindow = () => {
   // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   // mainWindow.loadURL('index.html');
   mainWindow.loadFile(path.join(__dirname, 'index.html'))
-  
-  // debug(fn + cl().line + ' loadFile index.html loaded')
-  // debug('%O: loadFile index.html loaded', fn + cl().line)
-  logger.debug(' index.html loaded') 
-  
+
+  logger.debug(' index.html loaded')
+
   // mainWindow.webContents.openDevTools();
   handleCommunication()
 }
@@ -327,6 +323,48 @@ app.on('ready', () => {
             }
           }
         },
+        { type: 'separator' },
+        {
+          label: 'Align',
+          accelerator: 'CmdOrCtrl+L',
+          click: async () => {
+            logger.debug('Align clicked...')
+            logger.debug("\n\n\t=== col1 ", typeof col1, Array.isArray(col1))
+            logger.debug("\n\n\t===  col2 ", typeof col2, Array.isArray(col2))
+            logger.debug("\n\n\t=== lines1 ", typeof lines1, Array.isArray(lines1))
+            logger.debug("\n\n\t===  lines2 ", typeof lines2, Array.isArray(lines2))
+
+            // /*
+            let rowData
+            try {
+              // rowData = await zmqAlign(col1, col2)
+              // rowData = await zmqAlign(lines1, lines2)
+              // rowData = await restAlign(lines1, lines2)
+              rowData = await restAlign(col1, col2)
+            } catch (e) {
+              logger.error(e)
+              rowData = { text1: e.name, text2: e.message }
+            }
+
+            // /*
+            // logger.debug(' rowData: %j', rowData)
+
+            logger.debug(' rowData from col1 col2: %j',  rowData)
+
+            // /*
+            if (!rowData) {
+              logger.error(' rowData is undefined ')
+            }
+            else {
+              logger.debug(' send to  via rowData channel ')
+              rowData.map((el, idx) => {if (idx < 5) logger.debug(' send to  via rowData channel ') })
+
+              mainWindow.webContents.send('rowData', rowData)
+            }
+            // */
+          }
+        },
+        { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' }
       ]
     },
@@ -344,8 +382,8 @@ app.on('ready', () => {
           ? [
               { role: 'pasteAndMatchStyle' },
               { role: 'delete' },
-              { role: 'selectAll' },
-              { type: 'separator' },
+              // { role: 'selectAll' },
+              // { type: 'separator' },
               {
                 label: 'Speech',
                 submenu: [
@@ -355,9 +393,9 @@ app.on('ready', () => {
               }
             ]
           : [
-              { role: 'delete' },
-              { type: 'separator' },
-              { role: 'selectAll' }
+              { role: 'delete' }
+              // { type: 'separator' },
+              // { role: 'selectAll' },
             ])
       ]
     },
@@ -413,7 +451,8 @@ app.on('ready', () => {
             // await shell.openExternal('https://github.com/ffreemt/ptextpad-electron')
             await shell.openExternal('https://jq.qq.com/?_wv=1027&k=9018eFSV')
           }
-        }
+        },
+        { label: `v.${require('../package.json').version}` }
       ]
     }
   ]
@@ -421,28 +460,34 @@ app.on('ready', () => {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
   createWindow()
-  
+
   // console.log('process.cwd()：', process.cwd())
   // consola.log('process.cwd()：', process.cwd())
-  logger.debug('process.cwd()：', process.cwd())
-  
+
   // start zmq(zmq.REP) at default port 5555
   // python\install\python.exe -s -m dezmq
   // const python = spawn('python/install/python.exe', ['-s', '-m', 'dezmq']);
-  const python_exc_path = path.join(__dirname, '../python/install/python.exe')
-  const python = spawn(python_exc_path, ['-s', '-m', 'dezmq']);
+
+  logger.debug('process.cwd()：', process.cwd())
+  const pythonExecPath = path.join(__dirname, '../python/install/python.exe')
+  logger.debug('python_exc_path： %s', pythonExecPath)
+
+  /*  comment this line to include python
+  // const python = spawn(pythonExecPath, ['-s', '-m', 'dezmq'])
+  const python = spawn(pythonExecPath, ['-s', '-m', 'dezrest'])
 
   python.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`)
   })
 
   python.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
+    console.error(`stderr: ${data}`)
   })
 
   python.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`child process exited with code ${code}`)
   })
+  // */
 })
 
 app.on('window-all-closed', () => {
