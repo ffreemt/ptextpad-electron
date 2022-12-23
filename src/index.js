@@ -1,7 +1,6 @@
 'use strict'
 
 // const createDebug = require('debug')
-// const fs = require("fs")
 
 // to turn off: unset DEBUG=debug, e.g. set DEBUG= or process.env.DEBUG=''
 // for colors: set DEBUG_COLORS=1
@@ -20,22 +19,18 @@ const logger = require('tracer').colorConsole({
   dateformat: 'HH:MM:ss.L',
   level: process.env.TRACER_DEBUG || 'info' // 'debug'
 })
-// const logger = {}
-// logger.debug = () => {}
-
-// fn + cl().line + ':'
 
 if (process.env.IS_DEV) {
   const devtools = require('electron-debug')
   devtools()
   process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-  console.log('1 debug')
+  // console.log('1 debug')
   logger.debug('1 debug')
 } else {
   logger.debug('0 debug')
-  console.log('0 debug')
+  // console.log('0 debug')
 }
-logger.info(' entry ... ')
+logger.debug(' entry ... ')
 
 /*
 let debug = null, cl = null, fn = null
@@ -69,9 +64,13 @@ logger.debug('IS_DEV: ', process.env.IS_DEV)
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
-const fs = require('fs/promises')
+
+const fs = require('fs')
+const fsAsync = require('fs/promises')
 const path = require('path')
-const { spawn } = require('node:child_process')
+// const { spawn } = require('node:child_process')
+const converter = require('json-2-csv')
+
 const file2lines = require('./file2lines')
 const genRowdata = require('./genRowdata')
 // const zmqAlign = require('./zmqAlign')
@@ -83,12 +82,11 @@ const file2 = './data/test-zh.txt'
 // const lines1 = file2lines(file1)
 // const lines2 = file2lines(file2)
 const lines1 = () => {
-  try { return file2lines(file1) }
-  catch (e) {return path.resolve(file1) + ': ' + e.name + ' ' + e.message}
+  try { return file2lines(file1) } catch (e) { return path.resolve(file1) + ': ' + e.name + ' ' + e.message }
 }
 const lines2 = () => {
-  try { return file2lines(file2) }
-  catch (e) {return path.resolve(file2) + ': ' + e.name + ' ' + e.message}}
+  try { return file2lines(file2) } catch (e) { return path.resolve(file2) + ': ' + e.name + ' ' + e.message }
+}
 
 // const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
 // const headers = ['text1', 'text2', 'metric']
@@ -99,6 +97,10 @@ let col1 = []
 let col2 = []
 // eslint-disable-next-line prefer-const
 let col3 = []
+
+let rowData
+let filename1
+let filename2
 
 if (require('electron-squirrel-startup')) {
   app.quit()
@@ -134,18 +136,20 @@ const loadFile = async (win, file = 1) => {
       try {
         logger.debug('executing file2lines(%s)... ', file)
         if (file === 1) {
-          for (const [idx, filePath] of filePaths.slice(0, 22).entries()) {
+          for (const [idx, filePath] of filePaths.slice(0, 2).entries()) {
             if (idx) {
               col2 = file2lines(filePath)
+              filename2 = filePath
             } else {
               col1 = file2lines(filePath)
+              filename1 = filePath
             }
           }
         } else {
           const [filePath] = filePaths
           col2 = file2lines(filePath)
+          filename2 = filePath
         }
-
       } catch (err) {
         throw new Error(err.message)
       }
@@ -172,7 +176,7 @@ const loadFile = async (win, file = 1) => {
       // win.webContents.send('file1-content', _)
       // return _
 
-      const rowData = genRowdata({ col1, col2, col3 })
+      rowData = genRowdata({ col1, col2, col3 })
 
       win.webContents.send('rowData', rowData)
       return { success: true, rowData }
@@ -196,7 +200,7 @@ const handleCommunication = () => {
       })
 
       if (!canceled) {
-        await fs.writeFile(filePath, data, 'utf8')
+        await fsAsync.writeFile(filePath, data, 'utf8')
 
         return { success: true }
       }
@@ -221,7 +225,7 @@ const handleCommunication = () => {
 
       if (!canceled) {
         const [filePath] = filePaths
-        const data = await fs.readFile(filePath, 'utf8')
+        const data = await fsAsync.readFile(filePath, 'utf8')
         return { success: true, data }
       } else {
         return { canceled }
@@ -294,7 +298,6 @@ app.on('ready', () => {
           accelerator: 'CmdOrCtrl+P',
           role: 'open',
           click: async () => {
-            // debug('%o open file2', fn + cl().line)
             logger.debug('open file2')
             let res = []
             try {
@@ -329,41 +332,124 @@ app.on('ready', () => {
           accelerator: 'CmdOrCtrl+L',
           click: async () => {
             logger.debug('Align clicked...')
-            logger.debug("\n\n\t=== col1 ", typeof col1, Array.isArray(col1))
-            logger.debug("\n\n\t===  col2 ", typeof col2, Array.isArray(col2))
-            logger.debug("\n\n\t=== lines1 ", typeof lines1, Array.isArray(lines1))
-            logger.debug("\n\n\t===  lines2 ", typeof lines2, Array.isArray(lines2))
+            logger.debug('\n\n\t=== col1 ', typeof col1, Array.isArray(col1))
+            logger.debug('\n\n\t===  col2 ', typeof col2, Array.isArray(col2))
+            logger.debug('\n\n\t=== lines1 ', typeof lines1, Array.isArray(lines1))
+            logger.debug('\n\n\t===  lines2 ', typeof lines2, Array.isArray(lines2))
 
-            // /*
-            let rowData
+            // let rowData  // moved to top as global
             try {
               // rowData = await zmqAlign(col1, col2)
               // rowData = await zmqAlign(lines1, lines2)
               // rowData = await restAlign(lines1, lines2)
               rowData = await restAlign(col1, col2)
             } catch (e) {
-              logger.error(e)
-              rowData = { text1: e.name, text2: e.message }
+              logger.error(e.message)
+              // rowData = { text1: e.name, text2: e.message }
+              dialog.showMessageBox(
+                {
+                  message: `${e.name}: ${e.message}`,
+                  title: 'Warning',
+                  buttons: ['OK'],
+                  type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                }
+              )
+              return null
             }
 
-            // /*
-            // logger.debug(' rowData: %j', rowData)
+            logger.debug(' rowData from col1 col2: %j', rowData)
 
-            logger.debug(' rowData from col1 col2: %j',  rowData)
-
-            // /*
             if (!rowData) {
               logger.error(' rowData is undefined ')
-            }
-            else {
-              logger.debug(' send to  via rowData channel ')
-              rowData.map((el, idx) => {if (idx < 5) logger.debug(' send to  via rowData channel ') })
+            } else {
+              logger.debug(' send to via rowData channel ')
+              // rowData.map((el, idx) => {
+              rowData.forEach((el, idx) => {
+                if (idx < 5) {
+                  logger.debug(' send via rowData channel ', el)
+                }
+              })
 
               mainWindow.webContents.send('rowData', rowData)
             }
-            // */
           }
         },
+        {
+          label: 'Save(csv)',
+          accelerator: 'CmdOrCtrl+S',
+          click: async () => {
+            logger.debug('SaveCsv clicked...')
+
+            if (!rowData) { // undefined or empty
+              dialog.showMessageBox(
+                {
+                  message: 'Empty data...Try to Align first.',
+                  title: 'Warning',
+                  buttons: ['OK'],
+                  type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                }
+              )
+              return null
+            }
+            // proceed to save rowData
+            let savedFilename = `${path.parse(filename1).name}-${path.parse(filename2).name}.csv`
+
+            savedFilename = path.join(path.parse(path.resolve(filename1)).dir, savedFilename)
+
+            logger.debug(' savedFilename: ', savedFilename)
+
+            converter.json2csv(rowData, (err, csv) => {
+              if (err) {
+                dialog.showMessageBox(
+                  {
+                    message: 'Unable to convert to csv.',
+                    title: 'Warning',
+                    buttons: ['OK'],
+                    type: 'warning'
+                  }
+                )
+                return null
+                // throw err
+              }
+
+              try {
+                logger.debug('csv: ', csv.slice(0, 200))
+              } catch (e) {
+                logger.debug(e.message)
+              }
+
+              try {
+                // fs.writeFileSync(savedFilename, csv, 'GB2312')
+                // fs.writeFileSync(savedFilename, Buffer.from('EFBBBF', 'hex'))
+                // fs.writeFileSync(savedFilename, csv)
+                // fs.writeFile(`${outputPath}`, `\ufeff${string}`, 'utf8')
+                fs.writeFileSync(savedFilename, `\ufeff${csv}`, 'utf8')
+
+                // const arr = iconv.encode (str, 'GB2312')
+                // fs.writeFileSync(savedFilename, arr, 'hex')
+                dialog.showMessageBox(
+                  {
+                    message: `${path.resolve(savedFilename)} saved`,
+                    title: 'Info',
+                    buttons: ['OK'],
+                    type: 'info'
+                  }
+                )
+              } catch (e) {
+                logger.error(e)
+                dialog.showMessageBox(
+                  {
+                    message: 'Unable to save, ' + e.message,
+                    title: 'Warning',
+                    buttons: ['OK'],
+                    type: 'warning'
+                  }
+                )
+              }
+            })
+          }
+        },
+
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' }
       ]
