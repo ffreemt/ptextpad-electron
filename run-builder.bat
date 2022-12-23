@@ -1,1 +1,2 @@
-npm run builder 
+REM npm run builder
+yarn builder

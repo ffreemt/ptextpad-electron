@@ -26,7 +26,7 @@ console.log(store.get('unicorn'))
 let rowData = [];
 
 const columnDefs0 = [
-  { field: "text1", editable: true, flex: 1 },
+  { field: "text1", editable: true, cellEditor: 'agLargeTextCellEditor', cellEditorPopup: true, textWrap: true, flex: 1 },
   {
     field: "text2",
     width: 120,
@@ -68,7 +68,9 @@ const columnDefs = [
     flex: 1,
     resizable: true,
     autoHeight: true,
-    wrapText: true
+    wrapText: true,
+    cellEditor: 'agLargeTextCellEditor',
+    // cellEditorPopup: true,
   },
   {
     headerName: 'text2',
@@ -77,7 +79,8 @@ const columnDefs = [
   flex: 1,
   resizable: true,
     autoHeight: true,
-    wrapText: true
+    wrapText: true,
+    cellEditor: 'agLargeTextCellEditor',
   },
   {
     headerName: 'metric',
