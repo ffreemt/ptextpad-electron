@@ -1,6 +1,6 @@
 const zmq = require('zeromq')
 
-const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
+// const zipLongest = (...args) => Array(Math.max(...args.map(a => a.length))).fill('').map((_, i) => args.map(a => a[i] === undefined ? '' : a[i]))
 
 // const debug = require('debug')('debug')
 const logger = require('tracer').colorConsole({
@@ -32,9 +32,10 @@ const run1 = async () => {
     logger.debug(' typeof ali: %s', typeof ali)
     // logger.debug(' \n\tali: %j', ali)
     // logger.debug('\n\n run1 - ali[:5]: \n\t%j', ali)
-    
+
     logger.debug('\n\n run1 - ali[:5]')
-    ali.map((el, idx) => { if (idx < 5) logger.debug(idx, el) } )
+    // ali.map((el, idx) => { if (idx < 5) logger.debug(idx, el) })
+    ali.forEach((el, idx) => { if (idx < 5) logger.debug(idx, el) })
   } catch (e) {
     logger.error(e.name, e.message)
   }
@@ -50,9 +51,9 @@ async function run () {
   // console.log("sock (new zmq.Request) bound to port ", port)
   logger.debug('sock (new zmq.Request) bound to port %s', port)
 
-  let msg = '4'
-  msg = 'stop'
-  msg = [
+  // let msg = '4'
+  // msg = 'stop'
+  let msg = [
     ['ab', 4],
     ['abc', 14]
   ]
@@ -79,5 +80,5 @@ async function run () {
   logger.debug('\n\nrun - ali: \n\t%j', ali.slice(0, 7))
 }
 
-// run()
+run()
 run1()
