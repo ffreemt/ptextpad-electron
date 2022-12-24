@@ -4,10 +4,24 @@
 
 A parallel text editor using electron
 
+## Install
+Download [the latest package](https://github.com/ffreemt/ptextpad-electron/releases) and install.
+
+Or from source
+```
+git clone https://github.com/ffreemt/ptextpad-electron.git
+cd ptextpad-electron
+npm install  # or yarn
+npm run dev  # yarn dev
+```
+
+## What is `ptextpad`
+`ptextpad` is a parallel text editor intended for editing two texts in a two-column manner. `ptextpad` incorperates some automatic alignment engines (currently just `ezbee` for Chinese-English texts). 
+
 ## TODOs
 `ptextpad-el` currently just has `ezbee` automatic alignment support that replies on a remote server. Supports for `dzbee`, `debee` and `mlbee` along with a possible local server are in plan phase. Install packages for Linux/macOs will be provided later on. Stay tuned.
 
-`Shortcuts` for moving a cell up/down will be implemented. `Shortcuts` for other convenient editing such as `spliting/combining` will also be implemented if feasible.
+Additonal funcitons and `Keyboard shortcuts` for moving a cell up/down will be implemented. `Shortcuts` for other convenient editing such as `spliting/combining` will also be implemented if feasible.
 
 ## Debug
 
@@ -18,10 +32,10 @@ set TRACER_DEBUG=debug
 # linux/macOS export TRACER_DEBUG=debug
 
 ```
-and run `ptextpad-el` from command line
+and run `ptextpad-el` from command line.
 
 `ptextpad-el.exe` is by default installed in `C:\Users\User\AppData\Local\Programs\ptextpad-el\ptextpad-el.exe` in Windows
 
-## Suggestions and Feedbacks
-Suggestions and feedbacks will be very happily received.
+## Suggestions and Feedback
+Suggestions and feedback will be very happily received.
 PRs are more than welcome.
