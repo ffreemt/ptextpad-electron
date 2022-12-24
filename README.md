@@ -4,16 +4,24 @@
 
 A parallel text editor using electron
 
-Coming soon...
+## TODOs
+`ptextpad-el` currently just has `ezbee` automatic alignment support that replies on a remote server. Supports for `dzbee`, `debee` and `mlbee` along with a possible local server are in plan phase. Install packages for Linux/macOs will be provided later on. Stay tuned.
 
-## Firewall warning
-
-`ptextpad-el` uses default port 5555 for inter-process communications between python (ezbee) and nodejs. `dezmq` (python) opens port 5555 in `zmq.REP` mode that provides alignment result from ezbee (maybe later on `dzbee` and `debee` as well). nodejs sends texts ro `dezmq`.
-
-Hence, the first time you run `ptextpad-el`, you'll be asked to permit the opening of that port.  
+`Shortcuts` for moving a cell up/down will be implemented. `Shortcuts` for other convenient editing such as `spliting/combining` will also be implemented if feasible.
 
 ## Debug
 
-To turn on debug
-* `nodejs`: set/export TRACER_DEBUG=debug
-* `python`: set/export LOGLEVEL=10
+Turn on debug
+```
+set TRACER_DEBUG=debug
+
+# linux/macOS export TRACER_DEBUG=debug
+
+```
+and run `ptextpad-el` from command line
+
+`ptextpad-el.exe` is by default installed in `C:\Users\User\AppData\Local\Programs\ptextpad-el\ptextpad-el.exe` in Windows
+
+## Suggestions and Feedbacks
+Suggestions and feedbacks will be very happily received.
+PRs are more than welcome.
