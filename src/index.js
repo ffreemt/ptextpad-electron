@@ -64,6 +64,7 @@ logger.debug('IS_DEV: ', process.env.IS_DEV)
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const ProgressBar = require('electron-progressbar')
 
 const fs = require('fs')
 const fsAsync = require('fs/promises')
@@ -337,6 +338,18 @@ app.on('ready', () => {
             logger.debug('\n\n\t=== lines1 ', typeof lines1, Array.isArray(lines1))
             logger.debug('\n\n\t===  lines2 ', typeof lines2, Array.isArray(lines2))
 
+            const progressBar = new ProgressBar({
+              text: 'diggin...',
+              detail: 'Fetching alignment result... make sure the net is up '
+            })
+            progressBar
+              .on('completed', function () {
+                console.info('completed...')
+                progressBar.detail = 'Task completed. Exiting...'
+              })
+              .on('aborted', function () {
+                console.info('aborted...')
+              })
             // let rowData  // moved to top as global
             try {
               // rowData = await zmqAlign(col1, col2)
@@ -355,6 +368,8 @@ app.on('ready', () => {
                 }
               )
               return null
+            } finally {
+              progressBar.setCompleted()
             }
 
             logger.debug(' rowData from col1 col2: %j', rowData)

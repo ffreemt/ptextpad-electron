@@ -74,10 +74,10 @@ const columnDefs = [
   },
   {
     headerName: 'text2',
-  field: "text2",
-  editable: true,
-  flex: 1,
-  resizable: true,
+    field: "text2",
+    editable: true,
+    flex: 1,
+    resizable: true,
     autoHeight: true,
     wrapText: true,
     cellEditor: 'agLargeTextCellEditor',
@@ -215,8 +215,9 @@ ipcRenderer.on('rowData',
 )
 
 const gridDiv = document.getElementById("grid");
-
 new Grid(gridDiv, gridOptions);
+
+/* // from demo code
 
 const setupGrid = () => {
 
@@ -226,3 +227,5 @@ const setupGrid = () => {
 };
 
 document.addEventListener("DOMContentLoaded", setupGrid);
+
+*/
