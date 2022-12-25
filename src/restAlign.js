@@ -38,14 +38,14 @@ const restAlign = async (lines1, lines2) => {
   let rep
   try {
     // rep = await axios.post(`http://127.0.0.1:${port}/post/`, texts)
-    rep = await axios.post(`http://forindo.net:${port}/post/`, texts)
+    // rep = await axios.post(`http://forindo.net:${port}/post/`, texts)
+    rep = await axios.post(`http://111.194.235.128:${port}/post/`, texts)
   } catch (e) {
-    logger.error(e.message)
+    logger.error(e)
     const text1 = e.name
     const text2 = e.message + '\n\t Is the server up running?'
     // return [{ text1, text2 }]
-    const err = e.message
-    rep = { err, data: [[text1, text2, '']] }
+    rep = { data: [[text1, text2, '']] }
   }
 
   const result = rep.data
@@ -55,7 +55,6 @@ const restAlign = async (lines1, lines2) => {
   // logger.debug(' to be returned to client: %j', _)
   logger.debug(' to be returned 0:5 ')
   // _.map((el, idx) => { if (idx < 10) logger.debug(idx, el); return null })
-  _.forEach((el, idx) => { if (idx < 5) logger.debug(idx, el) })
 
   // logger.debug('\n\t === %s', _)
 

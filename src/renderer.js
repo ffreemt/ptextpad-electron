@@ -10,14 +10,14 @@ const fs = require("fs")
 
 console.log(" entry ")
 
-console.log("to turn log on: console.log = () => {}")
+console.log("to turn log off: console.log = () => {}")
 // console.log(" console.log turned off ")
 // console.log = () => {}
 
-const Store = require('electron-store');
-const store = new Store();
+const Store = require('electron-store')
+const store = new Store()
 
-store.set('unicorn', '🦄');
+// store.set('unicorn', '🦄')
 console.log(store.get('unicorn'))
 
 // this works with <script>require("./renderer.js")</script> in index.HTMLCollection
