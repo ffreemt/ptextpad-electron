@@ -7,7 +7,7 @@
     "start": "electron-forge start",
     "dev0": "nodemon -w . -x electron .",
     "dev1": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=1 electron .",
-    "dev": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=true electron .",
+    "dev": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=true electron . --trace-warnings",
     "dev2": "cross-env DEBUG=debug IS_DEV=1 electron .",
     "test-r": "mocha -r esm -t 4000",
     "test": "mocha -t 4000",
