@@ -32,31 +32,6 @@ if (process.env.IS_DEV) {
 }
 logger.debug(' entry ... ')
 
-/*
-let debug = null, cl = null, fn = null
-if (process.env.IS_DEV) {
-  debug = createDebug('debug')
-  const devtools = require('electron-debug')
-
-  cl = require('get-current-line').default
-  fn = () => {
-    return `${cl().file.match(/[\w.-]+$/)[0]}`
-  }
-  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-  // devtools({ showDevTools: false }) // F12
-  devtools()
-  console.log("1 debug: %o", debug)
-} else {
-  debug = () => { }
-  fn = () => { }
-  cl = () => {
-    return { line: '' }
-  }
-  // cl().line = () => {}
-  console.log("0 debug: ", debug)
-}
-*/
-
 console.log('IS_DEV: ', process.env.IS_DEV)
 logger.debug('IS_DEV: ', process.env.IS_DEV)
 // console.log("debug: ", debug)
@@ -77,6 +52,8 @@ const genRowdata = require('./genRowdata')
 // const zmqAlign = require('./zmqAlign')
 const restAlign = require('./restAlign')
 // const menuTemplate = require('./menuTemplate')
+
+const Store = require('./store.js')
 
 const file1 = './data/test-en.txt'
 const file2 = './data/test-zh.txt'
@@ -103,6 +80,22 @@ let col3 = []
 let rowData
 let filename1
 let filename2
+
+const isMac = process.platform === 'darwin'
+// const { app, Menu } = require('electron')
+
+const store = new Store({
+  // We'll call our data file 'user-preferences'
+  configName: 'user-preferences',
+  defaults: {
+    // 800x600 is the default size of our window
+    windowBounds: { width: 800, height: 600 },
+    menuCheck: false
+  }
+})
+
+let menuChecked = store.get('menuChecked')
+logger.debug('menuChecked:  %s', menuChecked)
 
 if (require('electron-squirrel-startup')) {
   app.quit()
@@ -238,6 +231,9 @@ const handleCommunication = () => {
   })
 }
 const createWindow = () => {
+  // Use saved window size in user-preferences
+  const { width, height } = store.get('windowBounds')
+
   // const mainWindow = new BrowserWindow({
   mainWindow = new BrowserWindow({
     webPreferences: {
@@ -246,7 +242,16 @@ const createWindow = () => {
       nodeIntegration: true, // + contextIsolation: false to enable require
       contextIsolation: false,
       enableRemoteModule: true
-    }
+    },
+    width, height,
+  })
+
+  mainWindow.on('resize', () => {
+    // The event doesn't pass us the window size, so we call the `getBounds` method which returns an object with
+    // the height, width, and x and y coordinates.
+    const { width, height } = mainWindow.getBounds()
+    // Now that we have them, save them using the `set` method.
+    store.set('windowBounds', { width, height })
   })
 
   // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
@@ -260,9 +265,6 @@ const createWindow = () => {
 }
 
 // app.on('ready', createWindow)
-
-const isMac = process.platform === 'darwin'
-// const { app, Menu } = require('electron')
 
 app.on('ready', () => {
   // do menu, from official docs
@@ -407,7 +409,7 @@ const menuTemplate = [
       { type: 'separator' },
       {
         label: 'Align',
-        accelerator: 'CmdOrCtrl+L',
+        accelerator: 'CmdOrCtrl+L',  // CmdOrCtrl+R
         click: async () => {
           logger.debug('Align clicked...')
           logger.debug('\n\n\t=== col1 ', typeof col1, Array.isArray(col1))
@@ -541,6 +543,33 @@ const menuTemplate = [
           })
         }
       },
+      {
+        label: app.getName(),
+        invisible: true,
+        submenu: [
+          {
+            label: 'AliEngines',
+            type: "checkbox",
+            checked: menuChecked,
+            click: e => {
+              // mainWindow.showResetNotification = e.checked;
+              logger.debug(' checkbox ' )
+              menuChecked = !menuChecked
+              store.set('menuChecked', menuChecked)
+            }
+          },
+          {
+            label: 'Preferences',
+            click: _ => {
+                let prefWindow = new BrowserWindow({ width: 500, height: 300, resizable: false })
+                // prefWindow.loadURL(htmlPath)
+                prefWindow.loadFile(path.join(__dirname, 'preferences.html'))
+                prefWindow.show()
+                // on window closed
+            },
+          },
+        ]
+      },
       { type: 'separator' },
       isMac ? { role: 'close' } : { role: 'quit' }
     ]
@@ -631,5 +660,30 @@ const menuTemplate = [
       },
       { label: `v.${require('../package.json').version}` }
     ]
-  }
+  },
+    {
+      label: "Reminder notifications",
+      submenu: [
+        {
+          label: "Never",
+          type: "radio",
+          click: e => {
+            if (e.checked) {
+              mainWindow.resetNotification = "never";
+            }
+          }
+        },
+        {
+          label: "Every 30 minutes",
+          type: "radio",
+          click: e => { /* ... */ }
+        },
+        {
+          label: "Every hour",
+          type: "radio",
+          checked: true,
+          click: e => { /* ... */ }
+        }
+      ]
+    }
 ]

@@ -15,11 +15,13 @@ const file2lines = require('./src/file2lines')
 const genRowdata = require('./src/genRowdata')
 // const zmqAlign = require('./src/zmqAlign')
 
-const file1 = './data/test-en.txt'
-const file2 = './data/test-zh.txt'
+// const file1 = './data/test-en.txt'
+// const file2 = './data/test-zh.txt'
+const file1 = './data/射雕英雄传-en.txt'
+const file2 = './data/射雕英雄传-zh.txt'
 
-const lines1 = file2lines(file1)
-const lines2 = file2lines(file2)
+const lines1 = file2lines(file1).slice(0, 1000)
+const lines2 = file2lines(file2).slice(0, 1000)
 
 // debug('file1: %O', lines1.slice(0, 3))
 // debug('file2: %O', lines2.slice(0, 3))
@@ -34,9 +36,8 @@ const run = async () => {
   // logger.debug('sock (new zmq.Request) bound to port %s', port)
   logger.debug('axios to visit 127.0.0.1 port %s', port)
 
-  // let msg = '4'
-  // msg = 'stop'
-  // msg = [lines1, lines2]
+  let msg
+  msg = [lines1, lines2]
 
   const texts = [lines1.join('\n'), lines2.join('\n')]
 
@@ -48,11 +49,12 @@ const run = async () => {
     // let _ = await axios.post(`http://127.0.0.1:${port}/post`, msg)
     // let _ = await axios.post(`http://127.0.0.1:${port}/post/`, msg)
     // let _ = await axios.post(`http://127.0.0.1:${port}/post/`, ['a', 'b'])
-    const _ = await axios.post(`http://127.0.0.1:${port}/post/`, texts)
+    // let _ = await axios.post(`http://127.0.0.1:${port}/post/`, texts)
+    let _ = await axios.post(`http://forindo.net:${port}/post/`, texts)
     res = _.data
   } catch (e) {
-    const text1 = e.name
-    const text2 = e.message
+    let text1 = e.name
+    let text2 = e.message
     res = { text1, text2 }
     // throw e.name + ' ' + e.message
     // throw 'bummer...'
@@ -71,17 +73,22 @@ const run = async () => {
   try {
     ali = genRowdata({ col1: res, isRow: true })
   } catch (e) {
-    const text1 = e.name
-    const text2 = e.message
-    const metric = ''
+    text1 = e.name
+    text2 = e.message
+    metric = ''
     ali = [{ text1, text2, metric }]
   }
-  try {
+
+  try{
     logger.debug('\nrun - ali: \n\t%j', ali.slice(0, 7))
   } catch (e) {
-
+    logger.error(e.message)
   }
+
+  ali.forEach((el, i) => {
+    if (i < 10) logger.info(i, el)
+  })
+
 }
 
 run()
-// run1()

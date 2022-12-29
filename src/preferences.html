@@ -1,0 +1,27 @@
+<body>
+<!-- https://dev.to/aurelkurtula/creating-a-text-editor-in-electron-part-3---setting-preferences-584h -->
+    <p class="notification">Here you're able to personalise the interface by picking the colors you'd like to see. The changes will be saved automatically upon window being closed</p>
+    <div class="container">
+    <div id="content" >
+        <form action="">
+            <button id="defaultValues">Reset</button>
+            <p><span>Background</span> <label for="background"></label> <span>
+                <input type="text" name="background" value="#FFFFFF"></span> 
+            </p>
+            <p><span>Border Color</span> <label for="border-color"></label> <span>
+                <input type="text" name="border-color" value="#50C68A"></span> 
+            </p>
+            <p><span>Text Color</span> <label for="text-color"></label> <span>
+                <input type="text" name="text-color" value="#232323"></span> 
+            </p>
+            <p><span>Sidebar Background</span> <label for="sidebar-color"></label> <span>
+                <input type="text" name="sidebar-color" value="#2F3235"></span> 
+            </p>
+            <p><span>Sidebar Text</span> <label for="sidebar-text"></label> <span>
+                <input type="text" name="sidebar-text" value="#939395"></span> 
+            </p>
+        </form>
+    </div>
+    </div>
+    <script src="scripts/preferences.js"></script>
+</body>

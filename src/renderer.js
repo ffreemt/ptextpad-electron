@@ -8,6 +8,14 @@ const path = require("path")
 const fs = require("fs")
 // const fs = require("fs/promises");
 
+const logger = require('tracer').colorConsole({
+  format: '{{timestamp}} <{{title}}>{{file}}:{{line}}: {{message}}',
+  dateformat: 'HH:MM:ss.L',
+  level: process.env.TRACER_DEBUG || 'info' // 'debug'
+})
+
+logger.debug(" entry ")
+logger.info(" entry ")
 console.log(" entry ")
 
 console.log("to turn log off: console.log = () => {}")
@@ -18,6 +26,7 @@ const Store = require('electron-store')
 const store = new Store()
 
 // store.set('unicorn', '🦄')
+// console.log(store, store.get('unicorn'))
 console.log(store.get('unicorn'))
 
 // this works with <script>require("./renderer.js")</script> in index.HTMLCollection

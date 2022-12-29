@@ -4,6 +4,7 @@
   "description": "A parallel text editor using electron",
   "main": "src/index.js",
   "scripts": {
+    "view": "echo %npm_config_host% & echo %yarn_config_port%",
     "start": "electron-forge start",
     "dev0": "nodemon -w . -x electron .",
     "dev1": "cross-env DEBUG=debug IS_DEV=1 DEBUG_COLORS=1 electron .",
