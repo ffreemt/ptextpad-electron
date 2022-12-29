@@ -53,7 +53,8 @@ const genRowdata = require('./genRowdata')
 const restAlign = require('./restAlign')
 // const menuTemplate = require('./menuTemplate')
 
-const Store = require('./store.js')
+// const Store = require('./store.js')
+const Store = require('electron-store')
 
 const file1 = './data/test-en.txt'
 const file2 = './data/test-zh.txt'
@@ -84,6 +85,7 @@ let filename2
 const isMac = process.platform === 'darwin'
 // const { app, Menu } = require('electron')
 
+/*
 const store = new Store({
   // We'll call our data file 'user-preferences'
   configName: 'user-preferences',
@@ -93,9 +95,79 @@ const store = new Store({
     menuCheck: false
   }
 })
+// */
 
-let menuChecked = store.get('menuChecked')
+// const Store = require('electron-store')
+const store = new Store()
+
+/*
+store.set('engineState', {
+  forindo_dezbee: false,
+  forindo_mlbee: true,
+  localhost_dezbee: false,
+  localhost_mlbee: false,
+})  // reset
+// */
+
+// HERE
+const engineNameMap = {
+  forindo_dezbee: 'http://forindo.net:5555',
+  forindo_mlbee: 'http://forindo.net:7860',
+  localhost_dezbee: 'http://localhost:5555',
+  localhost_mlbee: 'http://localhost:7860'
+}
+
+const defaultPref = {
+  splitToSents: false,
+  splitToSentsEnabled: true,
+  windowBounds: { width: 800, height: 600 },
+  menuChecked: false,
+  aliEngine: 'http://forindo.net:5555',
+  aliEngineChecked: 'forindo_dezbee',
+  engineState: {
+    forindo_dezbee: true,
+    forindo_mlbee: false,
+    localhost_dezbee: false,
+    localhost_mlbee: false
+  },
+  engineURL: engineNameMap.forindo_dezbee
+}
+
+// let menuChecked = store.get('menuChecked') || false
+let menuChecked = store.get('menuChecked') || defaultPref.menuChecked
 logger.debug('menuChecked:  %s', menuChecked)
+
+let splitToSents = store.get('splitToSents') || defaultPref.splitToSents
+let splitToSentsEnabled = store.get('splitToSentsEnabled') || defaultPref.splitToSentsEnabled
+const aliEngine = store.get('aliEngine') || defaultPref.aliEngine
+const aliEngineChecked = store.get('aliEngineChecked') || defaultPref.aliEngineChecked
+const engineState = store.get('engineState') || defaultPref.engineState
+let engineURL = store.get('engineURL') || defaultPref.engineURL
+
+store.set('menuChecked', menuChecked)
+store.set('splitToSents', splitToSents)
+store.set('aliEngine', aliEngine)
+store.set('aliEngineChecked', aliEngineChecked)
+store.set('engineState', engineState)
+store.set('engineURL', engineURL)
+
+// logger.debug("store.store: %j", store.store)
+logger.debug('store.store:  ', store.store)
+
+const handleRadio = engine => {
+  // amened radio states engineURL
+  for (const eng in engineState) {
+    if (eng === engine) { engineState[eng] = true } else { engineState[eng] = false }
+  }
+  engineURL = engineNameMap[engine]
+  logger.debug('engineState: ', engineState)
+  logger.debug('engineURL: ', engineURL)
+
+  store.set('engineURL', engineURL)
+  store.set('engineState', engineState)
+
+  logger.debug('store.store: ', store.store)
+}
 
 if (require('electron-squirrel-startup')) {
   app.quit()
@@ -232,7 +304,7 @@ const handleCommunication = () => {
 }
 const createWindow = () => {
   // Use saved window size in user-preferences
-  const { width, height } = store.get('windowBounds')
+  const { width, height } = store.get('windowBounds') | defaultPref.windowBounds
 
   // const mainWindow = new BrowserWindow({
   mainWindow = new BrowserWindow({
@@ -243,7 +315,8 @@ const createWindow = () => {
       contextIsolation: false,
       enableRemoteModule: true
     },
-    width, height,
+    width,
+    height
   })
 
   mainWindow.on('resize', () => {
@@ -409,7 +482,7 @@ const menuTemplate = [
       { type: 'separator' },
       {
         label: 'Align',
-        accelerator: 'CmdOrCtrl+L',  // CmdOrCtrl+R
+        accelerator: 'CmdOrCtrl+L', // CmdOrCtrl+R
         click: async () => {
           logger.debug('Align clicked...')
           logger.debug('\n\n\t=== col1 ', typeof col1, Array.isArray(col1))
@@ -545,15 +618,15 @@ const menuTemplate = [
       },
       {
         label: app.getName(),
-        invisible: true,
+        visible: false,
         submenu: [
           {
-            label: 'AliEngines',
-            type: "checkbox",
+            label: 'AlignEngines',
+            type: 'checkbox',
             checked: menuChecked,
             click: e => {
               // mainWindow.showResetNotification = e.checked;
-              logger.debug(' checkbox ' )
+              logger.debug(' checkbox ')
               menuChecked = !menuChecked
               store.set('menuChecked', menuChecked)
             }
@@ -561,13 +634,13 @@ const menuTemplate = [
           {
             label: 'Preferences',
             click: _ => {
-                let prefWindow = new BrowserWindow({ width: 500, height: 300, resizable: false })
-                // prefWindow.loadURL(htmlPath)
-                prefWindow.loadFile(path.join(__dirname, 'preferences.html'))
-                prefWindow.show()
-                // on window closed
-            },
-          },
+              const prefWindow = new BrowserWindow({ width: 500, height: 300, resizable: false })
+              // prefWindow.loadURL(htmlPath)
+              prefWindow.loadFile(path.join(__dirname, 'preferences.html'))
+              prefWindow.show()
+              // on window closed
+            }
+          }
         ]
       },
       { type: 'separator' },
@@ -639,6 +712,60 @@ const menuTemplate = [
     ]
   },
   {
+    label: 'Preferences', // HERE
+    submenu: [
+      {
+        label: 'AlignEngine',
+        submenu: [{
+          label: 'forindo-dezbee(5555)',
+          type: 'radio',
+          checked: engineState.forindo_dezbee,
+          click: e => {
+            handleRadio('forindo_dezbee')
+            splitToSents = false
+            splitToSentsEnabled = false
+            if (e.checked) {
+              // handleRadio('forindo_dezbee')
+            }
+          }
+        },
+        {
+          label: 'forindo-mlbee(7860)',
+          type: 'radio',
+          checked: engineState.forindo_mlbee,
+          click: e => {
+            handleRadio('forindo_mlbee')
+          }
+        },
+        {
+          label: 'localhost-dezbee(5555)',
+          enabled: false,
+          type: 'radio',
+          checked: engineState.localhost_dezbee,
+          click: e => { handleRadio('localhost_dezbee') }
+        },
+        {
+          label: 'localhost-mlbee(8501)',
+          enabled: false,
+          type: 'radio',
+          checked: false,
+          click: e => { handleRadio('localhost_dezbee') }
+        }]
+      },
+      {
+        label: 'SplitToSents',
+        type: 'checkbox',
+        enabled: splitToSentsEnabled,
+        checked: splitToSents,
+        click: e => {
+          logger.debug(' SplitToSents checkbox ')
+          splitToSents = !splitToSents
+          store.set('splitToSents', splitToSents)
+        }
+      }
+    ]
+  },
+  {
     role: 'help',
     submenu: [
       {
@@ -660,30 +787,5 @@ const menuTemplate = [
       },
       { label: `v.${require('../package.json').version}` }
     ]
-  },
-    {
-      label: "Reminder notifications",
-      submenu: [
-        {
-          label: "Never",
-          type: "radio",
-          click: e => {
-            if (e.checked) {
-              mainWindow.resetNotification = "never";
-            }
-          }
-        },
-        {
-          label: "Every 30 minutes",
-          type: "radio",
-          click: e => { /* ... */ }
-        },
-        {
-          label: "Every hour",
-          type: "radio",
-          checked: true,
-          click: e => { /* ... */ }
-        }
-      ]
-    }
+  }
 ]

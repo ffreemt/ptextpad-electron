@@ -53,11 +53,8 @@ async function run () {
 
   // let msg = '4'
   // msg = 'stop'
-  let msg = [
-    ['ab', 4],
-    ['abc', 14]
-  ]
-  msg = [lines1, lines2]
+  // let msg = [ ['ab', 4], ['abc', 14] ]
+  let msg = [lines1, lines2]
   await sock.send(JSON.stringify(msg))
   const [result] = await sock.receive()
 

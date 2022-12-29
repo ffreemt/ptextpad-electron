@@ -36,13 +36,12 @@ const run = async () => {
   // logger.debug('sock (new zmq.Request) bound to port %s', port)
   logger.debug('axios to visit 127.0.0.1 port %s', port)
 
-  let msg
-  msg = [lines1, lines2]
+  // let msg = [lines1, lines2]
+  // await sock.send(JSON.stringify(msg))
+  // const [result] = await sock.receive()
 
   const texts = [lines1.join('\n'), lines2.join('\n')]
 
-  // await sock.send(JSON.stringify(msg))
-  // const [result] = await sock.receive()
 
   let res
   try {
