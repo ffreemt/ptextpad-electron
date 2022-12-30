@@ -54,8 +54,9 @@
   "build": {
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": false,
-      "createDesktopShortcut": true
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "allowElevation": true
     },
     "asar": true
   }
