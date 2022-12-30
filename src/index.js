@@ -777,7 +777,7 @@ const menuTemplate = [
     ]
   },
   {
-    label: 'Preferences', // HERE
+    label: 'Options', // HERE
     submenu: [
       {
         label: 'AlignEngine',
@@ -819,17 +819,36 @@ const menuTemplate = [
       },
       {
         label: 'SplitToSents',
-        type: 'checkbox',
-        enabled: splitToSentsEnabled,
-        checked: splitToSents,
-        click: e => {
-          logger.debug(' SplitToSents checkbox ')
-          splitToSents = !splitToSents
-          store.set('splitToSents', splitToSents)
+        submenu: [{
+          label: "yes",
+          enabled: false,
+          checked: false,
+          type: 'radio',
+          // checked: splitToSents,
+          click: e => {
+            logger.debug(' SplitToSents checkbox ')
+              dialog.showMessageBox(
+                {
+                  title: 'coming soon...',
+                  message: `Not implemented yet, stay tuned.`,
+                  buttons: ['OK'],
+                  type: 'info'
+                }
+              )
+            // splitToSents = !splitToSents
+            splitToSents = false
+            store.set('splitToSents', splitToSents)
+            }
+          },
+        {
+          label: 'no',
+          type: 'radio',
+          checked: true,
         }
-      }
+        ]}
     ]
   },
+  // =================
   {
     role: 'help',
     submenu: [

@@ -21,10 +21,12 @@ npm run dev  # yarn dev
 ## What is `ptextpad`
 `ptextpad` is a parallel text editor intended for editing two texts in a two-column manner. `ptextpad` incorperates some automatic alignment engines (currently just `ezbee` for Chinese-English texts).
 
-## TODOs
-`ptextpad-el` currently just has `ezbee` automatic alignment support that replies on a remote server. Supports for `dzbee`, `debee` along with a possible local server are in plan phase. Installation packages for Linux/macOs will be provided later on. Stay tuned.
+## TODO
+* `ptextpad-el` currently just has `ezbee` automatic alignment support that replies on a remote server. Supports for `dzbee`, `debee` along with a possible local server are in plan phase. Installation packages for Linux/macOs will be provided later on. Stay tuned.
 
-Additonal functions and `Keyboard shortcuts` for moving a cell up/down will be implemented. `Shortcuts` for other convenient editing such as `splitting/combining` will also be implemented if feasible.
+* Additonal functions and `Keyboard shortcuts` for moving a cell up/down will be implemented. `Shortcuts` for other convenient editing such as `splitting/combining` will also be implemented if feasible.
+
+* Split to sentences and align.
 
 ## Debug
 
