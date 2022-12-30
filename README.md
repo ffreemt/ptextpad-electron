@@ -15,11 +15,14 @@ npm install  # or yarn
 npm run dev  # yarn dev
 ```
 
+## What's new
+`mlbee` has been integrated into `ptextpad`.
+
 ## What is `ptextpad`
 `ptextpad` is a parallel text editor intended for editing two texts in a two-column manner. `ptextpad` incorperates some automatic alignment engines (currently just `ezbee` for Chinese-English texts).
 
 ## TODOs
-`ptextpad-el` currently just has `ezbee` automatic alignment support that replies on a remote server. Supports for `dzbee`, `debee` and `mlbee` along with a possible local server are in plan phase. Installation packages for Linux/macOs will be provided later on. Stay tuned.
+`ptextpad-el` currently just has `ezbee` automatic alignment support that replies on a remote server. Supports for `dzbee`, `debee` along with a possible local server are in plan phase. Installation packages for Linux/macOs will be provided later on. Stay tuned.
 
 Additonal functions and `Keyboard shortcuts` for moving a cell up/down will be implemented. `Shortcuts` for other convenient editing such as `splitting/combining` will also be implemented if feasible.
 
@@ -37,5 +40,5 @@ and run `ptextpad-el` from command line.
 `ptextpad-el.exe` is by default installed in `C:\Users\User\AppData\Local\Programs\ptextpad-el\ptextpad-el.exe` in Windows
 
 ## Suggestions and Feedback
-Suggestions and feedback will be very happily received.
+Suggestions and feedback will be very happily received while whining will be ignored.
 PRs are more than welcome.

@@ -21,7 +21,7 @@ consola.level = process.env.CONSOLA_DEBUG || 4 // set CONSOLA_DEBUG=4 to show de
 
 // yarn test -f "@1 genRowdata"
 describe('@1 genRowdata: sanity test ', () => {
-  context(' README.md ', () => {
+  // context(' README.md ', () => {  // not compertable with jest
     it('#1 ./README.md ', async () => {
       let result = await file2lines('README.md')
       consola.debug('result: %o', result)
@@ -42,7 +42,7 @@ describe('@1 genRowdata: sanity test ', () => {
       // expect(result[1].text1).to.equal('')
       assert(result[1], '')
     })
-  })
+  // })
 })
 
 describe('@2 isRow = true ', () => {

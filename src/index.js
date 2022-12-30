@@ -155,7 +155,7 @@ store.set('engineURL', engineURL)
 logger.debug('store.store:  ', store.store)
 
 const handleRadio = engine => {
-  // amened radio states engineURL
+  // amened radio states & engineURL
   for (const eng in engineState) {
     if (eng === engine) { engineState[eng] = true } else { engineState[eng] = false }
   }
@@ -507,7 +507,11 @@ const menuTemplate = [
             // rowData = await zmqAlign(col1, col2)
             // rowData = await zmqAlign(lines1, lines2)
             // rowData = await restAlign(lines1, lines2)
-            rowData = await restAlign(col1, col2)
+            if (engineURL.match(/5555/) ) {
+              rowData = await restAlign(col1, col2)
+            } else {
+              rowData = await restAlign(col1, col2, 'http://forindo.net:7860/api/predict')
+            }
           } catch (e) {
             logger.error(e.message)
             // rowData = { text1: e.name, text2: e.message }
@@ -537,7 +541,68 @@ const menuTemplate = [
               }
             })
 
+            // at least one metric not zero or empty
+            let metric = rowData.map(el => el.metric)
+            let ratio
+            if (metric.length > 0) {
+              ratio = metric.reduce( (s, e) => s + !!e, 0) / metric.length
+              ratio = ratio.toFixed(3)
+            } else { ratio = 0 }
+            logger.debug("sum of metric: ", )
+
+            let only = ''
+            if (ratio < .2) only = 'only '
+
+            if (ratio < 0.01) {
+              dialog.showMessageBox(
+                {
+                  title: 'ratio',
+                  message: `
+  ptextpad failed to suggest any of aligned pairs, sorry about that.
+  There can be various reasons for the failure.
+                  `,
+                  buttons: ['OK'],
+                  type: 'info',
+                })
+            } else {
+             dialog.showMessageBox(
+                {
+                  title: 'ratio',
+                  message: `
+  ptextpad ${only}managed to successfully suggest
+  about ${ratio * 100}% of aligned pairs
+                  `,
+                  buttons: ['OK'],
+                  type: 'info',
+                })
+            }
+
+            // if (metric.some( el => !!el )) {
             mainWindow.webContents.send('rowData', rowData)
+            if (ratio < 0.1) {
+              let extra_msg = ''
+              if(engineURL.match(/5555/)) {
+                   extra_msg = `
+
+  You may wish to try mlbee (Menu/Preferences/AlignEngin/forind-mlbee)
+  instead, which takes a tad longer tho.`
+              }
+
+              dialog.showMessageBox(
+                {
+                  title: 'bummer',
+                  message: `
+  No meaningful result returned, either because
+  there is a bug in the app, or the server is down,
+  or there is an issue with your
+  data/parameters selected. If possible, feedback to the dev,
+  best with some descriptions and/or your data if feasible.${extra_msg}
+                  `,
+                  buttons: ['OK'],
+                  type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                }
+              )
+            }
           }
         }
       },

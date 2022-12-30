@@ -24,7 +24,7 @@ consola.debug('test-zh.txt lines2: %j', lines2.slice(0, 2))
 describe('@1 restAlign: sanity test ', () => {
   // context(' ==== ', () => {
 
-    it('#1  test-en.txt/test-zh.txt  ', async () => {
+    test('#1  test-en.txt/test-zh.txt  ', async () => {
       let [lines1a, lines2a] = [lines1.slice(0,10), lines2.slice(0,10)]
       const result = await restAlign(lines1a, lines2a)
       consola.debug('result: %o', result)
@@ -32,7 +32,7 @@ describe('@1 restAlign: sanity test ', () => {
       expect(result.length).least(2)
     })
 
-    it('#2 test-en.txt/test-zh.txt  ', async () => {
+    test('#2 test-en.txt/test-zh.txt  ', async () => {
       const result = await restAlign(lines1, lines2)
       consola.debug('result: %o', result)
       // console.log(result)
@@ -40,4 +40,26 @@ describe('@1 restAlign: sanity test ', () => {
       expect(result.length).least(6)
     })
   // })
+
+  test('#3 test-en.txt/test-zh.txt mlbee 7860 ', async () => {
+      const result = await restAlign(lines1, lines2, 'http://forindo.net:7860/api/predict')
+      consola.debug('result: %o', result)
+      // console.log(result)
+
+      expect(result.length).least(2)
+      expect(result.length).least(6)
+
+      /* ...
+        [ 'Contents PreviousChapter', '上一章', 0.26 ],
+        [ 'NextChapter', '下一章', 0.49 ],
+        [ 'Homepage', '返回首页', 0.68 ]
+      ]
+      */
+
+      console.log('==== ', result[result.length - 1])
+
+      // { text1: 'Homepage', text2: '返回首页', metric: 0.68 }
+      expect(result[result.length - 1].metric).least(0.68)
+
+    })
 })

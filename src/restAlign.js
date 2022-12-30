@@ -15,16 +15,20 @@ const logger = require('tracer').colorConsole({
 
 const port = 5555
 
-const restAlign = async (lines1, lines2) => {
+const restAlign = async (lines1, lines2, url = null) => {
   let texts
+  let text1
+  let text2
   try {
     logger.debug('lines1.slice(0, 2): %j', lines1.slice(0, 2))
     logger.debug('lines2.slice(0, 2): %j', lines2.slice(0, 2))
-    texts = [lines1.join('\n'), lines2.join('\n')]
+    text1 = lines1.join('\n')
+    text2 = lines2.join('\n')
+    texts = [text1, text2]
   } catch (e) {
     logger.error(e)
-    const text1 = e.name
-    const text2 = e.message
+    text1 = e.name
+    text2 = e.message
     texts = [{ text1, text2 }]
     return texts
   }
@@ -35,30 +39,66 @@ const restAlign = async (lines1, lines2) => {
   // await sock.send(JSON.stringify([lines1, lines2]))
   // logger.debug(' sock.send ')
 
-  let rep
+  if (!url) url = `http://forindo.net:${port}/post/`
+
+  let data
+  if (url.match('5555')) {
+    data = texts
+
+    let rep
+    try {
+      // rep = await axios.post(`http://127.0.0.1:${port}/post/`, texts)
+      // rep = await axios.post(`http://111.194.226.116:${port}/post/`, texts)
+      rep = await axios.post(url, data)
+    } catch (e) {
+      logger.error(e)
+      text1 = e.name
+      text2 = e.message + '\n\t Is the server up running? Anything loaded?'
+      // return [{ text1, text2 }]
+      rep = { data: [[text1, text2, '']] }
+    }
+
+    let result
+    result = rep.data
+    const _ = genRowdata({ col1: result, isRow: true })
+
+    // logger.debug(' to be returned to client: %j', _)
+    logger.debug(' to be returned 0:5 ')
+    // _.map((el, idx) => { if (idx < 10) logger.debug(idx, el); return null })
+
+    // logger.debug('\n\t === %s', _)
+
+    return _
+  }
+
+  // else
+  // mlbee 7860
+  data = { data: [text1, text2, false, false] }
+
   try {
     // rep = await axios.post(`http://127.0.0.1:${port}/post/`, texts)
     // rep = await axios.post(`http://111.194.226.116:${port}/post/`, texts)
-    rep = await axios.post(`http://forindo.net:${port}/post/`, texts)
+    rep = await axios.post(url, data)
   } catch (e) {
-    logger.error(e)
-    const text1 = e.name
-    const text2 = e.message + '\n\t Is the server up running? Anything loaded?'
+    logger.error(e.name + ': ' + e.message)
+    text1 = e.name
+    text2 = e.message + '\n\t Is the server up running? Anything loaded?'
     // return [{ text1, text2 }]
     rep = { data: [[text1, text2, '']] }
   }
 
-  const result = rep.data
+  // logger.debug('rep.data: ', rep.data)
+
+  // rep.data: jdata, jdata.get('data')[0].get('data')
+  result = rep.data.data[0].data
+
+  // logger.debug('result: ', result)
+  logger.debug('result[result.length - 1]: ' , result[result.length - 1])
 
   const _ = genRowdata({ col1: result, isRow: true })
 
-  // logger.debug(' to be returned to client: %j', _)
-  logger.debug(' to be returned 0:5 ')
-  // _.map((el, idx) => { if (idx < 10) logger.debug(idx, el); return null })
-
-  // logger.debug('\n\t === %s', _)
-
   return _
+
 }
 
 module.exports = restAlign
