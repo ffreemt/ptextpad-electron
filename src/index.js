@@ -824,14 +824,14 @@ const menuTemplate = [
         },
         {
           label: 'localhost-dezbee(5555)',
-          enabled: false,
+          // enabled: false,
           type: 'radio',
           checked: engineState.localhost_dezbee,
           click: e => { handleRadio('localhost_dezbee') }
         },
         {
           label: 'localhost-mlbee(8501)',
-          enabled: false,
+          // enabled: false,
           type: 'radio',
           checked: false,
           click: e => { handleRadio('localhost_dezbee') }
