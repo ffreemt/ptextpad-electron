@@ -14,28 +14,26 @@
 
 // const assert = require('assert')
 
+if (process.env.IS_DEV) {
+  const devtools = require('electron-debug')
+  devtools()
+  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
+}
+
+console.log('IS_DEV: ', process.env.IS_DEV)
+// logger.debug('IS_DEV: ', process.env.IS_DEV)
+// console.log("debug: ", debug)
+// debug('main.js: %s %s', fn, cl().line)
+
+if (process.env.IS_DEV) process.env.TRACER_DEBUG = 'debug'
+
 const logger = require('tracer').colorConsole({
   format: '{{timestamp}} <{{title}}>{{file}}:{{line}}: {{message}}',
   dateformat: 'HH:MM:ss.L',
   level: process.env.TRACER_DEBUG || 'info' // 'debug'
 })
-
-if (process.env.IS_DEV) {
-  const devtools = require('electron-debug')
-  devtools()
-  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
-  // console.log('1 debug')
-  logger.debug('1 debug')
-} else {
-  logger.debug('0 debug')
-  // console.log('0 debug')
-}
 logger.debug(' entry ... ')
-
-console.log('IS_DEV: ', process.env.IS_DEV)
-logger.debug('IS_DEV: ', process.env.IS_DEV)
-// console.log("debug: ", debug)
-// debug('main.js: %s %s', fn, cl().line)
+logger.info(' set TRACER_DEBUG=info or set IS_DEV=1 to turn on debug/verbose ... ')
 
 // const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron')
@@ -78,9 +76,9 @@ let col2 = []
 // eslint-disable-next-line prefer-const
 let col3 = []
 
-let rowData
-let filename1
-let filename2
+let rowData = ''
+let filename1 = ''
+let filename2 = ''
 
 const isMac = process.platform === 'darwin'
 // const { app, Menu } = require('electron')
@@ -135,7 +133,7 @@ const defaultPref = {
 
 // let menuChecked = store.get('menuChecked') || false
 let menuChecked = store.get('menuChecked') || defaultPref.menuChecked
-logger.debug('menuChecked:  %s', menuChecked)
+logger.debug('menuChecked: %s', menuChecked)
 
 let splitToSents = store.get('splitToSents') || defaultPref.splitToSents
 let splitToSentsEnabled = store.get('splitToSentsEnabled') || defaultPref.splitToSentsEnabled
@@ -152,7 +150,7 @@ store.set('engineState', engineState)
 store.set('engineURL', engineURL)
 
 // logger.debug("store.store: %j", store.store)
-logger.debug('store.store:  ', store.store)
+logger.debug('store.store: ', store.store)
 
 const handleRadio = engine => {
   // amened radio states & engineURL
@@ -171,6 +169,10 @@ const handleRadio = engine => {
 
 if (require('electron-squirrel-startup')) {
   app.quit()
+}
+
+const saveEdit = async win => {
+  win.webContents.send('saveEdit')
 }
 
 const loadFile = async (win, file = 1) => {
@@ -300,6 +302,11 @@ const handleCommunication = () => {
     } catch (error) {
       return { error }
     }
+  })
+  ipcMain.handle('update-rowdata', async (evt, rowdata) => {
+    rowData = rowdata
+    logger.debug(" updated rowData: %j", rowData)
+    // logger.debug(" updated rowData: %s", JSON.stringify(rowData))
   })
 }
 const createWindow = () => {
@@ -481,6 +488,19 @@ const menuTemplate = [
       },
       { type: 'separator' },
       {
+        label: "SaveEdit",
+        accelerator: 'CmdOrCtrl+E',
+        click: async () => {
+            logger.debug('SaveEdit clicked...')
+            try {
+              await saveEdit(mainWindow)
+            } catch (e) {
+              logger.error(e.message)
+            }
+          }
+      },
+      { type: 'separator' },
+      {
         label: 'Align',
         accelerator: 'CmdOrCtrl+L', // CmdOrCtrl+R
         click: async () => {
@@ -618,7 +638,7 @@ const menuTemplate = [
                 message: 'Empty data...Try to Align first.',
                 title: 'Warning',
                 buttons: ['OK'],
-                type: 'warning' // none/info/error/question/warning https://newsn.net/say/electron-dialog-messagebox.html
+                type: 'warning'
               }
             )
             return null

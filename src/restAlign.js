@@ -15,7 +15,7 @@ const logger = require('tracer').colorConsole({
 
 const port = 5555
 
-const restAlign = async (lines1, lines2, url = null) => {
+const restAlign = async (lines1, lines2, url = null, split2sents = false) => {
   let texts
   let text1
   let text2
@@ -43,7 +43,7 @@ const restAlign = async (lines1, lines2, url = null) => {
 
   let data
   if (url.match('5555')) {
-    data = texts
+    data = { texts, split2sents }
 
     let rep
     try {

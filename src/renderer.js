@@ -217,11 +217,28 @@ ipcRenderer.on('file1-content',
 
 ipcRenderer.on('rowData',
   async (evt, rowData) => {
-    // console.log(' ipcRenderer.on("rowdata"): %o', rowData)
+    console.log(' ipcRenderer.on("rowdata"): %o', rowData)
     gridOptions.api.setRowData(rowData);
     // restoreFromFile1(result)
   }
 )
+
+ipcRenderer.on('saveEdit',
+  async evt => {
+    let as_csv = gridOptions.api.getDataAsCsv()
+    console.log(' as_csv[:100]: %o', as_csv.slice(0, 100))
+    let rowData = []
+    gridOptions.api.forEachNode(node => rowData.push(node.data))
+    console.log('typeof rowData: %s, rowData[:10]: %s', typeof rowData, rowData.slice(0, 10))
+
+    try {
+      await ipcRenderer.invoke("update-rowdata", rowData)
+    } catch (e) {
+      console.log(e.message)
+    }
+  }
+)
+
 
 const gridDiv = document.getElementById("grid");
 new Grid(gridDiv, gridOptions);
